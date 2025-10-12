@@ -1,0 +1,1643 @@
+{
+  "info": {
+    "_postman_id": "hospital-management-system",
+    "name": "Hospital Management System API",
+    "description": "Comprehensive API collection for Hospital Management System with role-based endpoints.\n\n🆕 NEW FEATURES:\n- Public appointment booking (no registration required)\n- Auto-generated Patient IDs (PAT-YYYY-NNNNNN format)\n- Patient appointment history tracking\n- Complete patient management system\n\n📋 QUICK START:\n1. Run 'Public Patient Booking' → Book appointment without auth\n2. Get auto-generated Patient ID from response\n3. Use Patient ID to view history, cancel appointments\n\n🔧 TESTING:\nUse 'Complete Patient Flow Examples' folder for end-to-end testing scenarios.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "staff_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "doctor_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "patient_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "patient_id_generated",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "appointment_id_generated",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "example1_patient_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "example1_appointment_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "example2_appointment_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hospital Admin\",\n  \"email\": \"admin@hospital.com\",\n  \"password\": \"password123\",\n  \"role\": \"admin\",\n  \"age\": 35,\n  \"gender\": \"Male\",\n  \"contact\": \"+1234567890\",\n  \"address\": \"123 Hospital Street\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Patient\",\n  \"email\": \"patient@example.com\",\n  \"password\": \"password123\",\n  \"age\": 28,\n  \"gender\": \"Male\",\n  \"contact\": \"+1234567891\",\n  \"address\": \"456 Patient Avenue\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('admin_token', response.token);",
+                  "    pm.collectionVariables.set('jwt_token', response.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@hospital.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login Staff",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('staff_token', response.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"staff@hospital.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login Doctor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('doctor_token', response.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"doctor@hospital.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login Patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('patient_token', response.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"patient@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Department Management",
+          "item": [
+            {
+              "name": "Create Department",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Cardiology\",\n  \"code\": \"CARD\",\n  \"description\": \"Heart and cardiovascular system treatment\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/departments",
+                  "host": ["{{base_url}}"],
+                  "path": ["departments"]
+                }
+              }
+            },
+            {
+              "name": "Get All Departments",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/departments",
+                  "host": ["{{base_url}}"],
+                  "path": ["departments"]
+                }
+              }
+            },
+            {
+              "name": "Update Department",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Cardiology\",\n  \"description\": \"Advanced heart and cardiovascular system treatment\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/departments/{{department_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["departments", "{{department_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete Department",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{base_url}}/departments/{{department_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["departments", "{{department_id}}"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Staff Management",
+          "item": [
+            {
+              "name": "Create Staff",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Jane Staff\",\n  \"email\": \"staff@hospital.com\",\n  \"password\": \"password123\",\n  \"departmentId\": \"{{department_id}}\",\n  \"role\": \"staff\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/admin/staff",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "staff"]
+                }
+              }
+            },
+            {
+              "name": "Get All Staff",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/admin/staff",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "staff"]
+                }
+              }
+            },
+            {
+              "name": "Update Staff",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Jane Updated Staff\",\n  \"departmentId\": \"{{department_id}}\",\n  \"role\": \"subadmin\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/admin/staff/{{staff_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "staff", "{{staff_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete Staff",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{base_url}}/admin/staff/{{staff_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "staff", "{{staff_id}}"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Doctor Management",
+          "item": [
+            {
+              "name": "Create Doctor",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Dr. John Smith\",\n  \"email\": \"doctor@hospital.com\",\n  \"password\": \"password123\",\n  \"specialization\": \"Cardiology\",\n  \"departmentId\": \"{{department_id}}\",\n  \"availableDays\": [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"],\n  \"timeSlots\": [\n    {\"startTime\": \"09:00\", \"endTime\": \"09:30\"},\n    {\"startTime\": \"09:30\", \"endTime\": \"10:00\"},\n    {\"startTime\": \"10:00\", \"endTime\": \"10:30\"},\n    {\"startTime\": \"10:30\", \"endTime\": \"11:00\"},\n    {\"startTime\": \"11:00\", \"endTime\": \"11:30\"}\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/admin/doctors",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "doctors"]
+                }
+              }
+            },
+            {
+              "name": "Get All Doctors",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/admin/doctors",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "doctors"]
+                }
+              }
+            },
+            {
+              "name": "Update Doctor",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Dr. John Updated Smith\",\n  \"specialization\": \"Senior Cardiologist\",\n  \"availableDays\": [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\"],\n  \"timeSlots\": [\n    {\"startTime\": \"09:00\", \"endTime\": \"09:30\"},\n    {\"startTime\": \"09:30\", \"endTime\": \"10:00\"}\n  ],\n  \"status\": \"Active\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/admin/doctors/{{doctor_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "doctors", "{{doctor_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete Doctor",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{base_url}}/admin/doctors/{{doctor_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "doctors", "{{doctor_id}}"]
+                }
+              }
+            },
+            {
+              "name": "Assign Doctors to Department",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"doctorIds\": [\"{{doctor_id1}}\", \"{{doctor_id2}}\"],\n  \"departmentId\": \"{{department_id}}\",\n  \"availableDays\": [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"],\n  \"timeSlots\": [\n    {\"startTime\": \"09:00\", \"endTime\": \"09:30\"},\n    {\"startTime\": \"09:30\", \"endTime\": \"10:00\"}\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/admin/assign-doctors",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "assign-doctors"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Patient Management",
+          "item": [
+            {
+              "name": "Get All Patients",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/appointments/patients?page=1&limit=20&search=PAT",
+                  "host": ["{{base_url}}"],
+                  "path": ["appointments", "patients"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "search",
+                      "value": "PAT"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get All Appointments (Updated)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/appointments/all?status=Booked&page=1&limit=20",
+                  "host": ["{{base_url}}"],
+                  "path": ["appointments", "all"],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "Booked"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update Appointment Status (Updated)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"Attended\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/appointments/{{appointment_id_generated}}/status",
+                  "host": ["{{base_url}}"],
+                  "path": ["appointments", "{{appointment_id_generated}}", "status"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Statistics & Analytics",
+          "item": [
+            {
+              "name": "Hospital Statistics",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/admin/hospital-statistics",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "hospital-statistics"]
+                }
+              }
+            },
+            {
+              "name": "Admin Dashboard",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/analytics/admin-dashboard?startDate=2024-01-01&endDate=2024-12-31",
+                  "host": ["{{base_url}}"],
+                  "path": ["analytics", "admin-dashboard"],
+                  "query": [
+                    {
+                      "key": "startDate",
+                      "value": "2024-01-01"
+                    },
+                    {
+                      "key": "endDate",
+                      "value": "2024-12-31"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Doctors Monthly Report",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/analytics/doctors-monthly-report?year=2024",
+                  "host": ["{{base_url}}"],
+                  "path": ["analytics", "doctors-monthly-report"],
+                  "query": [
+                    {
+                      "key": "year",
+                      "value": "2024"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Missed vs Attended Report",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/analytics/missed-vs-attended?startDate=2024-01-01&endDate=2024-12-31",
+                  "host": ["{{base_url}}"],
+                  "path": ["analytics", "missed-vs-attended"],
+                  "query": [
+                    {
+                      "key": "startDate",
+                      "value": "2024-01-01"
+                    },
+                    {
+                      "key": "endDate",
+                      "value": "2024-12-31"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cron Job Management",
+          "item": [
+            {
+              "name": "Get Cron Job Summary",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/cron/cron-summary",
+                  "host": ["{{base_url}}"],
+                  "path": ["cron", "cron-summary"]
+                }
+              }
+            },
+            {
+              "name": "Get Daily Statistics",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/cron/daily-statistics?page=1&limit=10",
+                  "host": ["{{base_url}}"],
+                  "path": ["cron", "daily-statistics"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Generate Statistics for Date",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"date\": \"2024-10-10\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/cron/generate-statistics",
+                  "host": ["{{base_url}}"],
+                  "path": ["cron", "generate-statistics"]
+                }
+              }
+            },
+            {
+              "name": "Update Missed Appointments",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"date\": \"2024-10-09\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/cron/update-missed-appointments",
+                  "host": ["{{base_url}}"],
+                  "path": ["cron", "update-missed-appointments"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Staff",
+      "item": [
+        {
+          "name": "Appointment Management",
+          "item": [
+            {
+              "name": "Book Appointment for Patient",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{staff_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"patientId\": \"{{patient_id}}\",\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2024-10-15\",\n  \"time\": \"09:00\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/staff/book-appointment",
+                  "host": ["{{base_url}}"],
+                  "path": ["staff", "book-appointment"]
+                }
+              }
+            },
+            {
+              "name": "Update Appointment Status",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{staff_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"Attended\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/staff/appointments/{{appointment_id}}/status",
+                  "host": ["{{base_url}}"],
+                  "path": [
+                    "staff",
+                    "appointments",
+                    "{{appointment_id}}",
+                    "status"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get All Appointments",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{staff_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/staff/appointments?status=Booked&date=2024-10-15",
+                  "host": ["{{base_url}}"],
+                  "path": ["staff", "appointments"],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "Booked"
+                    },
+                    {
+                      "key": "date",
+                      "value": "2024-10-15"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Schedule Management",
+          "item": [
+            {
+              "name": "Get Today's Schedules",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{staff_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/staff/today-schedules",
+                  "host": ["{{base_url}}"],
+                  "path": ["staff", "today-schedules"]
+                }
+              }
+            },
+            {
+              "name": "Get Daily Schedule",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{staff_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/analytics/daily-schedule?date=2024-10-15",
+                  "host": ["{{base_url}}"],
+                  "path": ["analytics", "daily-schedule"],
+                  "query": [
+                    {
+                      "key": "date",
+                      "value": "2024-10-15"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Doctor",
+      "item": [
+        {
+          "name": "My Appointments",
+          "item": [
+            {
+              "name": "Get Today's Appointments",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{doctor_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/doctors/my/today-appointments",
+                  "host": ["{{base_url}}"],
+                  "path": ["doctors", "my", "today-appointments"]
+                }
+              }
+            },
+            {
+              "name": "Get Monthly Statistics",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{doctor_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/doctors/my/monthly-statistics?year=2024&month=10",
+                  "host": ["{{base_url}}"],
+                  "path": ["doctors", "my", "monthly-statistics"],
+                  "query": [
+                    {
+                      "key": "year",
+                      "value": "2024"
+                    },
+                    {
+                      "key": "month",
+                      "value": "10"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Patient History",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{doctor_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/doctors/my/patient-history?page=1&limit=10",
+                  "host": ["{{base_url}}"],
+                  "path": ["doctors", "my", "patient-history"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "General",
+          "item": [
+            {
+              "name": "Get All Doctors",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{doctor_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/doctors?departmentId={{department_id}}&specialization=Cardiology",
+                  "host": ["{{base_url}}"],
+                  "path": ["doctors"],
+                  "query": [
+                    {
+                      "key": "departmentId",
+                      "value": "{{department_id}}"
+                    },
+                    {
+                      "key": "specialization",
+                      "value": "Cardiology"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Doctor Availability",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{doctor_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/doctors/{{doctor_id}}/availability?date=2024-10-15",
+                  "host": ["{{base_url}}"],
+                  "path": ["doctors", "{{doctor_id}}", "availability"],
+                  "query": [
+                    {
+                      "key": "date",
+                      "value": "2024-10-15"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Public Patient Booking (No Registration)",
+      "item": [
+        {
+          "name": "Book Appointment (No Auth Required)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('patient_id_generated', response.patientId);",
+                  "    pm.collectionVariables.set('appointment_id_generated', response.appointment._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-15\",\n  \"time\": \"10:00 AM\",\n  \"patientName\": \"John Doe\",\n  \"patientEmail\": \"john.doe@email.com\",\n  \"patientContact\": \"+1234567890\",\n  \"patientAge\": 30,\n  \"patientGender\": \"Male\",\n  \"patientAddress\": \"123 Main Street, City, State\",\n  \"emergencyContact\": \"+0987654321\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/appointments/book",
+              "host": ["{{base_url}}"],
+              "path": ["appointments", "book"]
+            }
+          }
+        },
+        {
+          "name": "Get Patient Info by Patient ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/appointments/search-patient/{{patient_id_generated}}",
+              "host": ["{{base_url}}"],
+              "path": ["appointments", "search-patient", "{{patient_id_generated}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Appointment History by Patient ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/appointments/patient/{{patient_id_generated}}?upcoming=true",
+              "host": ["{{base_url}}"],
+              "path": ["appointments", "patient", "{{patient_id_generated}}"],
+              "query": [
+                {
+                  "key": "upcoming",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cancel Appointment by Patient ID",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/appointments/patient/{{patient_id_generated}}/cancel/{{appointment_id_generated}}",
+              "host": ["{{base_url}}"],
+              "path": ["appointments", "patient", "{{patient_id_generated}}", "cancel", "{{appointment_id_generated}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Patient (Authenticated - Legacy)",
+      "item": [
+        {
+          "name": "My Appointments",
+          "item": [
+            {
+              "name": "Book Appointment (Authenticated)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{patient_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2024-10-15\",\n  \"time\": \"09:00\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/appointments/book",
+                  "host": ["{{base_url}}"],
+                  "path": ["appointments", "book"]
+                }
+              }
+            },
+            {
+              "name": "Get My Appointment History",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{patient_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/appointments/my-history?upcoming=true",
+                  "host": ["{{base_url}}"],
+                  "path": ["appointments", "my-history"],
+                  "query": [
+                    {
+                      "key": "upcoming",
+                      "value": "true"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Cancel Appointment",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{patient_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "url": {
+                  "raw": "{{base_url}}/appointments/{{appointment_id}}/cancel",
+                  "host": ["{{base_url}}"],
+                  "path": ["appointments", "{{appointment_id}}", "cancel"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Browse Doctors",
+          "item": [
+            {
+              "name": "Get All Doctors",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{patient_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/doctors?departmentId={{department_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["doctors"],
+                  "query": [
+                    {
+                      "key": "departmentId",
+                      "value": "{{department_id}}"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Check Doctor Availability",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{patient_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/doctors/{{doctor_id}}/availability?date=2024-10-15",
+                  "host": ["{{base_url}}"],
+                  "path": ["doctors", "{{doctor_id}}", "availability"],
+                  "query": [
+                    {
+                      "key": "date",
+                      "value": "2024-10-15"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get All Departments",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{patient_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/departments",
+                  "host": ["{{base_url}}"],
+                  "path": ["departments"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Complete Patient Flow Examples",
+      "item": [
+        {
+          "name": "Example 1: First-time Patient Booking",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('example1_patient_id', response.patientId);",
+                  "    pm.collectionVariables.set('example1_appointment_id', response.appointment._id);",
+                  "    console.log('New Patient ID Generated:', response.patientId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-20\",\n  \"time\": \"09:00 AM\",\n  \"patientName\": \"Alice Johnson\",\n  \"patientEmail\": \"alice.johnson@email.com\",\n  \"patientContact\": \"+1555123456\",\n  \"patientAge\": 28,\n  \"patientGender\": \"Female\",\n  \"patientAddress\": \"456 Oak Avenue, Springfield\",\n  \"emergencyContact\": \"+1555987654\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/appointments/book",
+              "host": ["{{base_url}}"],
+              "path": ["appointments", "book"]
+            }
+          }
+        },
+        {
+          "name": "Example 2: Returning Patient Booking",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    console.log('Existing Patient ID Used:', response.patientId);",
+                  "    pm.collectionVariables.set('example2_appointment_id', response.appointment._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-22\",\n  \"time\": \"02:00 PM\",\n  \"patientName\": \"Alice Johnson\",\n  \"patientEmail\": \"alice.johnson@email.com\",\n  \"patientContact\": \"+1555123456\",\n  \"patientAge\": 28,\n  \"patientGender\": \"Female\",\n  \"patientAddress\": \"456 Oak Avenue, Springfield\",\n  \"emergencyContact\": \"+1555987654\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/appointments/book",
+              "host": ["{{base_url}}"],
+              "path": ["appointments", "book"]
+            }
+          }
+        },
+        {
+          "name": "Example 3: View Complete Patient History",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/appointments/patient/{{example1_patient_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["appointments", "patient", "{{example1_patient_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Example 4: Cancel Appointment",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/appointments/patient/{{example1_patient_id}}/cancel/{{example2_appointment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["appointments", "patient", "{{example1_patient_id}}", "cancel", "{{example2_appointment_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/../health",
+              "host": ["{{base_url}}"],
+              "path": ["..", "health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
