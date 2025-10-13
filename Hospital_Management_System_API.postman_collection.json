@@ -70,6 +70,11 @@
       "key": "example2_appointment_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -836,6 +841,37 @@
                   ]
                 }
               }
+            },
+            {
+              "name": "User Appointment History",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/analytics/user-history/{{user_id}}?page=1&limit=10",
+                  "host": ["{{base_url}}"],
+                  "path": ["analytics", "user-history", "{{user_id}}"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                }
+              }
             }
           ]
         },
@@ -953,6 +989,27 @@
                   "raw": "{{base_url}}/cron/update-missed-appointments",
                   "host": ["{{base_url}}"],
                   "path": ["cron", "update-missed-appointments"]
+                }
+              }
+            },
+            {
+              "name": "Get Statistics for Specific Date",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{admin_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/cron/statistics/2024-10-10",
+                  "host": ["{{base_url}}"],
+                  "path": ["cron", "statistics", "2024-10-10"]
                 }
               }
             }
@@ -1306,7 +1363,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-15\",\n  \"time\": \"10:00 AM\",\n  \"patientName\": \"John Doe\",\n  \"patientEmail\": \"john.doe@email.com\",\n  \"patientContact\": \"+1234567890\",\n  \"patientAge\": 30,\n  \"patientGender\": \"Male\",\n  \"patientAddress\": \"123 Main Street, City, State\",\n  \"emergencyContact\": \"+0987654321\"\n}"
+              "raw": "{\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-15\",\n  \"time\": \"08:30\",\n  \"patientName\": \"John Doe\",\n  \"patientEmail\": \"john.doe@email.com\",\n  \"patientContact\": \"+1234567890\",\n  \"patientAge\": 30,\n  \"patientGender\": \"Male\",\n  \"patientAddress\": \"123 Main Street, City, State\",\n  \"emergencyContact\": \"+0987654321\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/appointments/book",
@@ -1555,7 +1612,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-20\",\n  \"time\": \"09:00 AM\",\n  \"patientName\": \"Alice Johnson\",\n  \"patientEmail\": \"alice.johnson@email.com\",\n  \"patientContact\": \"+1555123456\",\n  \"patientAge\": 28,\n  \"patientGender\": \"Female\",\n  \"patientAddress\": \"456 Oak Avenue, Springfield\",\n  \"emergencyContact\": \"+1555987654\"\n}"
+              "raw": "{\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-20\",\n  \"time\": \"08:00\",\n  \"patientName\": \"Alice Johnson\",\n  \"patientEmail\": \"alice.johnson@email.com\",\n  \"patientContact\": \"+1555123456\",\n  \"patientAge\": 28,\n  \"patientGender\": \"Female\",\n  \"patientAddress\": \"456 Oak Avenue, Springfield\",\n  \"emergencyContact\": \"+1555987654\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/appointments/book",
@@ -1590,7 +1647,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-22\",\n  \"time\": \"02:00 PM\",\n  \"patientName\": \"Alice Johnson\",\n  \"patientEmail\": \"alice.johnson@email.com\",\n  \"patientContact\": \"+1555123456\",\n  \"patientAge\": 28,\n  \"patientGender\": \"Female\",\n  \"patientAddress\": \"456 Oak Avenue, Springfield\",\n  \"emergencyContact\": \"+1555987654\"\n}"
+              "raw": "{\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-22\",\n  \"time\": \"13:00\",\n  \"patientName\": \"Alice Johnson\",\n  \"patientEmail\": \"alice.johnson@email.com\",\n  \"patientContact\": \"+1555123456\",\n  \"patientAge\": 28,\n  \"patientGender\": \"Female\",\n  \"patientAddress\": \"456 Oak Avenue, Springfield\",\n  \"emergencyContact\": \"+1555987654\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/appointments/book",
@@ -1624,16 +1681,42 @@
       ]
     },
     {
-      "name": "Health Check",
+      "name": "Health Check & System Info",
       "item": [
         {
           "name": "Health Check",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/../health",
+              "raw": "http://localhost:3000/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "System Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3000/status",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["status"]
+            }
+          }
+        },
+        {
+          "name": "System Information",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/system/info",
               "host": ["{{base_url}}"],
-              "path": ["..", "health"]
+              "path": ["system", "info"]
             }
           }
         }
