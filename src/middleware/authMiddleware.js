@@ -33,7 +33,10 @@ exports.authenticate = async (req, res, next) => {
 
 exports.authorizeRoles = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
+    // For doctors and staff, use userType instead of role
+    const userRole = req.user.role || req.userType;
+    
+    if (!roles.includes(userRole)) {
       return res.status(403).json({ message: "Access denied" });
     }
     next();

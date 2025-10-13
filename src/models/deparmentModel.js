@@ -9,7 +9,12 @@ const departmentSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
   createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date },
 });
 
 // Add indexes for performance

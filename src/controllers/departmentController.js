@@ -23,11 +23,18 @@ exports.createDepartment = async (req, res) => {
 
 exports.updateDepartment = async (req, res) => {
   try {
+    const updateData = {
+      ...req.body,
+      updatedBy: req.user._id,
+      updatedAt: new Date(),
+    };
+    
     const updated = await Department.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true }
-    );
+    ).select('-createdBy -createdAt +updatedBy +updatedAt');
+    
     res.json(updated);
   } catch (err) {
     res.status(500).json({ message: err.message });
