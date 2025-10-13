@@ -4,6 +4,7 @@ const {
   bookAppointmentForPatient,
   updateAppointmentStatus,
   getTodaySchedules,
+  getDailySchedule,
   getAllAppointments,
 } = require("../controllers/staffController");
 const {
@@ -29,6 +30,12 @@ router.get(
   authenticate,
   authorizeRoles("staff", "subadmin"),
   getTodaySchedules
+);
+router.get(
+  "/daily-schedule/:date",
+  authenticate,
+  authorizeRoles("staff", "subadmin"),
+  getDailySchedule
 );
 router.get(
   "/appointments",

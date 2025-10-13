@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "hospital-management-system",
     "name": "Hospital Management System API",
-    "description": "Comprehensive API collection for Hospital Management System with role-based endpoints.\n\n🆕 NEW FEATURES:\n- Public appointment booking (no registration required)\n- Auto-generated Patient IDs (PAT-YYYY-NNNNNN format)\n- Patient appointment history tracking\n- Complete patient management system\n\n📋 QUICK START:\n1. Run 'Public Patient Booking' → Book appointment without auth\n2. Get auto-generated Patient ID from response\n3. Use Patient ID to view history, cancel appointments\n\n🔧 TESTING:\nUse 'Complete Patient Flow Examples' folder for end-to-end testing scenarios.",
+    "description": "Comprehensive API collection for Hospital Management System with role-based endpoints.\n\n🆕 FLEXIBLE PATIENT BOOKING:\n✓ NEW PATIENTS: Book with full details (name, email, contact, age, gender) - Get auto-generated Patient ID\n✓ EXISTING PATIENTS: Book using only Patient ID (e.g., PAT-2025-000001)\n✓ NO SIGNUP REQUIRED: Both flows work without registration or login\n\n📋 QUICK START:\n1. NEW PATIENT: Use 'NEW PATIENT - Book with Full Details' with patient info\n2. Get auto-generated Patient ID from response (e.g., PAT-2025-000001)\n3. RETURN VISIT: Use 'EXISTING PATIENT - Book with Patient ID Only' with just the Patient ID\n\n🔧 TESTING:\nUse 'Public Patient Booking' folder for complete booking workflow examples.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -108,27 +108,6 @@
           }
         },
         {
-          "name": "Register Patient",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"John Patient\",\n  \"email\": \"patient@example.com\",\n  \"password\": \"password123\",\n  \"age\": 28,\n  \"gender\": \"Male\",\n  \"contact\": \"+1234567891\",\n  \"address\": \"456 Patient Avenue\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/auth/register",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "register"]
-            }
-          }
-        },
-        {
           "name": "Login Admin",
           "event": [
             {
@@ -223,40 +202,6 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"doctor@hospital.com\",\n  \"password\": \"password123\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "login"]
-            }
-          }
-        },
-        {
-          "name": "Login Patient",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    const response = pm.response.json();",
-                  "    pm.collectionVariables.set('patient_token', response.token);",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"patient@example.com\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/auth/login",
@@ -1029,7 +974,7 @@
           "name": "Appointment Management",
           "item": [
             {
-              "name": "Book Appointment for Patient",
+              "name": "NEW PATIENT - Book with Full Details",
               "request": {
                 "auth": {
                   "type": "bearer",
@@ -1050,15 +995,85 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"patientId\": \"{{patient_id}}\",\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-15\",\n  \"time\": \"09:00\"\n}"
+                  "raw": "{\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-20\",\n  \"time\": \"10:00\",\n  \"patientName\": \"John Doe\",\n  \"patientEmail\": \"john.doe@email.com\",\n  \"patientContact\": \"+1234567890\",\n  \"patientAge\": 30,\n  \"patientGender\": \"Male\",\n  \"patientAddress\": \"123 Main Street, City, State\",\n  \"emergencyContact\": \"+0987654321\"\n}"
                 },
                 "url": {
                   "raw": "{{base_url}}/staff/book-appointment",
                   "host": ["{{base_url}}"],
                   "path": ["staff", "book-appointment"]
                 },
-                "description": "Book appointment for a patient. Use either Patient MongoDB _id or Patient ID (e.g., PAT-2025-000001) for patientId field."
-              }
+                "description": "🆕 NEW PATIENT BOOKING\n\n✅ For first-time patients who don't have a Patient ID yet\n✅ System auto-generates Patient ID (e.g., PAT-2025-000001)\n✅ Staff can only book for their own department\n✅ Doctor must belong to staff's department\n\nRequired Fields:\n- doctorId: ID of doctor from staff's department\n- departmentId: Must match staff's department\n- date: Appointment date (YYYY-MM-DD)\n- time: Appointment time (HH:MM)\n- patientName: Full name\n- patientEmail: Valid email\n- patientContact: Phone number\n- patientAge: Age in years\n- patientGender: Male/Female/Other\n\nOptional Fields:\n- patientAddress\n- emergencyContact\n\n📝 Response includes:\n- Auto-generated Patient ID for future use\n- Complete appointment details\n- isNewPatient: true flag"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    if (jsonData.patientId) {",
+                      "        pm.collectionVariables.set('patient_id_generated', jsonData.patientId);",
+                      "        console.log('✅ Patient ID saved:', jsonData.patientId);",
+                      "    }",
+                      "    if (jsonData.appointment && jsonData.appointment._id) {",
+                      "        pm.collectionVariables.set('appointment_id_generated', jsonData.appointment._id);",
+                      "        console.log('✅ Appointment ID saved:', jsonData.appointment._id);",
+                      "    }",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "EXISTING PATIENT - Book with Patient ID",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{staff_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"patientId\": \"{{patient_id_generated}}\",\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-21\",\n  \"time\": \"11:00\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/staff/book-appointment",
+                  "host": ["{{base_url}}"],
+                  "path": ["staff", "book-appointment"]
+                },
+                "description": "⚡ EXISTING PATIENT BOOKING\n\n✅ For returning patients who already have a Patient ID\n✅ Just provide Patient ID - no other patient details needed\n✅ Super fast booking process\n✅ Staff can only book for their own department\n✅ Doctor must belong to staff's department\n\nRequired Fields:\n- patientId: Patient ID (e.g., PAT-2025-000001) or MongoDB _id\n- doctorId: ID of doctor from staff's department\n- departmentId: Must match staff's department\n- date: Appointment date (YYYY-MM-DD)\n- time: Appointment time (HH:MM)\n\n📝 Response includes:\n- Patient details (fetched automatically)\n- Complete appointment details\n- isNewPatient: false flag"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    if (jsonData.appointment && jsonData.appointment._id) {",
+                      "        pm.collectionVariables.set('appointment_id_generated', jsonData.appointment._id);",
+                      "        console.log('✅ Appointment ID saved:', jsonData.appointment._id);",
+                      "    }",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
             },
             {
               "name": "Update Appointment Status",
@@ -1085,15 +1100,16 @@
                   "raw": "{\n  \"status\": \"Attended\"\n}"
                 },
                 "url": {
-                  "raw": "{{base_url}}/staff/appointments/{{appointment_id}}/status",
+                  "raw": "{{base_url}}/staff/appointments/{{appointment_id_generated}}/status",
                   "host": ["{{base_url}}"],
                   "path": [
                     "staff",
                     "appointments",
-                    "{{appointment_id}}",
+                    "{{appointment_id_generated}}",
                     "status"
                   ]
-                }
+                },
+                "description": "🔒 UPDATE APPOINTMENT STATUS (Department Restricted)\n\n✅ Staff can only update appointments in their own department\n✅ Cannot modify appointments from other departments\n\nValid Status Values:\n- Attended: Patient attended the appointment\n- Missed: Patient did not show up\n\nSecurity:\n- Validates appointment belongs to staff's department\n- Returns 403 Forbidden if attempting to update other department's appointments"
               }
             },
             {
@@ -1111,20 +1127,28 @@
                 },
                 "method": "GET",
                 "url": {
-                  "raw": "{{base_url}}/staff/appointments?status=Booked&date=2024-10-15",
+                  "raw": "{{base_url}}/staff/appointments?status=Booked&date=2025-10-20&doctorId={{doctor_id}}",
                   "host": ["{{base_url}}"],
                   "path": ["staff", "appointments"],
                   "query": [
                     {
                       "key": "status",
-                      "value": "Booked"
+                      "value": "Booked",
+                      "description": "Filter by status: Booked, Attended, Missed"
                     },
                     {
                       "key": "date",
-                      "value": "2024-10-15"
+                      "value": "2025-10-20",
+                      "description": "Filter by date (YYYY-MM-DD)"
+                    },
+                    {
+                      "key": "doctorId",
+                      "value": "{{doctor_id}}",
+                      "description": "Filter by specific doctor (must be from staff's department)"
                     }
                   ]
-                }
+                },
+                "description": "🔒 GET ALL APPOINTMENTS (Department Restricted)\n\n✅ Automatically shows only appointments from staff's department\n✅ Cannot view appointments from other departments\n✅ Supports multiple filters\n\nQuery Parameters (all optional):\n- status: Filter by appointment status (Booked, Attended, Missed)\n- date: Filter by specific date (YYYY-MM-DD format)\n- doctorId: Filter by specific doctor (must be from staff's department)\n\nResponse includes:\n- total: Total number of appointments\n- appointments: Array of appointment objects with populated doctor, patient, and department details"
               }
             }
           ]
@@ -1150,11 +1174,12 @@
                   "raw": "{{base_url}}/staff/today-schedules",
                   "host": ["{{base_url}}"],
                   "path": ["staff", "today-schedules"]
-                }
+                },
+                "description": "🔒 GET TODAY'S SCHEDULE (Department Restricted)\n\n✅ Shows only TODAY's appointments for staff's department\n✅ Automatically uses current date\n✅ Grouped by doctors\n✅ Includes statistics\n\nResponse includes:\n- date: Today's date\n- schedules: Array of doctors with their appointments\n  - doctorName, specialization, department\n  - totalAppointments, attended, missed, booked counts\n  - appointments: Array of today's appointments for each doctor\n\nUse Cases:\n- Morning briefing\n- Check today's workload\n- Track patient arrivals\n- Update appointment statuses"
               }
             },
             {
-              "name": "Get Daily Schedule",
+              "name": "Get Daily Schedule (Specific Date)",
               "request": {
                 "auth": {
                   "type": "bearer",
@@ -1168,16 +1193,11 @@
                 },
                 "method": "GET",
                 "url": {
-                  "raw": "{{base_url}}/analytics/daily-schedule?date=2024-10-15",
+                  "raw": "{{base_url}}/staff/daily-schedule/2025-10-20",
                   "host": ["{{base_url}}"],
-                  "path": ["analytics", "daily-schedule"],
-                  "query": [
-                    {
-                      "key": "date",
-                      "value": "2024-10-15"
-                    }
-                  ]
-                }
+                  "path": ["staff", "daily-schedule", "2025-10-20"]
+                },
+                "description": "🔒 GET DAILY SCHEDULE FOR SPECIFIC DATE (Department Restricted)\n\n✅ View schedule for any specific date\n✅ Shows only appointments for staff's department\n✅ Grouped by doctors with statistics\n✅ Perfect for planning ahead\n\nURL Parameter:\n- date: Date in YYYY-MM-DD format (e.g., 2025-10-20)\n\nResponse includes:\n- date: Requested date\n- totalDoctors: Number of doctors with appointments\n- totalAppointments: Total appointments across all doctors\n- schedules: Array of doctors with their appointments\n  - doctorName, specialization, department\n  - totalAppointments, attended, missed, booked counts\n  - appointments: Array of appointments for each doctor\n\nUse Cases:\n- Plan future schedules\n- Check availability for specific dates\n- Review past appointments\n- Generate daily reports"
               }
             }
           ]
@@ -1344,7 +1364,7 @@
       "name": "Public Patient Booking (No Registration)",
       "item": [
         {
-          "name": "Book Appointment (No Auth Required)",
+          "name": "NEW PATIENT - Book with Full Details",
           "event": [
             {
               "listen": "test",
@@ -1354,6 +1374,9 @@
                   "    const response = pm.response.json();",
                   "    pm.collectionVariables.set('patient_id_generated', response.patientId);",
                   "    pm.collectionVariables.set('appointment_id_generated', response.appointment._id);",
+                  "    console.log('✓ New Patient Created');",
+                  "    console.log('Patient ID:', response.patientId);",
+                  "    console.log('Save this Patient ID for future bookings!');",
                   "}"
                 ]
               }
@@ -1375,7 +1398,44 @@
               "raw": "{{base_url}}/appointments/book",
               "host": ["{{base_url}}"],
               "path": ["appointments", "book"]
+            },
+            "description": "Book appointment as a NEW patient. Provide full details and system will auto-generate a Patient ID. No signup required!"
+          }
+        },
+        {
+          "name": "EXISTING PATIENT - Book with Patient ID Only",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('appointment_id_generated', response.appointment._id);",
+                  "    console.log('✓ Appointment Booked for Existing Patient');",
+                  "}"
+                ]
+              }
             }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"{{patient_id_generated}}\",\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-16\",\n  \"time\": \"09:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/appointments/book",
+              "host": ["{{base_url}}"],
+              "path": ["appointments", "book"]
+            },
+            "description": "Book appointment as an EXISTING patient. Just provide your Patient ID (e.g., PAT-2025-000001). No other details needed!"
           }
         },
         {
@@ -1414,97 +1474,9 @@
               "raw": "{{base_url}}/appointments/patient/{{patient_id_generated}}/cancel/{{appointment_id_generated}}",
               "host": ["{{base_url}}"],
               "path": ["appointments", "patient", "{{patient_id_generated}}", "cancel", "{{appointment_id_generated}}"]
-            }
+            },
+            "description": "Cancel an appointment using Patient ID and Appointment ID. No authentication required."
           }
-        }
-      ]
-    },
-    {
-      "name": "Patient (Authenticated - Legacy)",
-      "item": [
-        {
-          "name": "My Appointments",
-          "item": [
-            {
-              "name": "Book Appointment (Authenticated)",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{patient_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2024-10-15\",\n  \"time\": \"09:00\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/appointments/book",
-                  "host": ["{{base_url}}"],
-                  "path": ["appointments", "book"]
-                }
-              }
-            },
-            {
-              "name": "Get My Appointment History",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{patient_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "GET",
-                "url": {
-                  "raw": "{{base_url}}/appointments/my-history?upcoming=true",
-                  "host": ["{{base_url}}"],
-                  "path": ["appointments", "my-history"],
-                  "query": [
-                    {
-                      "key": "upcoming",
-                      "value": "true"
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "name": "Cancel Appointment",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{patient_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "DELETE",
-                "url": {
-                  "raw": "{{base_url}}/appointments/{{appointment_id}}/cancel",
-                  "host": ["{{base_url}}"],
-                  "path": ["appointments", "{{appointment_id}}", "cancel"]
-                }
-              }
-            }
-          ]
         },
         {
           "name": "Browse Doctors",
@@ -1512,16 +1484,6 @@
             {
               "name": "Get All Doctors",
               "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{patient_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "method": "GET",
                 "url": {
                   "raw": "{{base_url}}/doctors?departmentId={{department_id}}",
@@ -1530,159 +1492,46 @@
                   "query": [
                     {
                       "key": "departmentId",
-                      "value": "{{department_id}}"
+                      "value": "{{department_id}}",
+                      "description": "Filter doctors by department (optional)"
                     }
                   ]
-                }
+                },
+                "description": "Browse all available doctors. Filter by department if needed. No authentication required."
               }
             },
             {
               "name": "Check Doctor Availability",
               "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{patient_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "method": "GET",
                 "url": {
-                  "raw": "{{base_url}}/doctors/{{doctor_id}}/availability?date=2024-10-15",
+                  "raw": "{{base_url}}/doctors/{{doctor_id}}/availability?date=2025-10-20",
                   "host": ["{{base_url}}"],
                   "path": ["doctors", "{{doctor_id}}", "availability"],
                   "query": [
                     {
                       "key": "date",
-                      "value": "2024-10-15"
+                      "value": "2025-10-20",
+                      "description": "Check availability for specific date (YYYY-MM-DD)"
                     }
                   ]
-                }
+                },
+                "description": "Check doctor's availability for a specific date. Shows available time slots. No authentication required."
               }
             },
             {
               "name": "Get All Departments",
               "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{patient_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "method": "GET",
                 "url": {
                   "raw": "{{base_url}}/departments",
                   "host": ["{{base_url}}"],
                   "path": ["departments"]
-                }
+                },
+                "description": "Get list of all hospital departments. No authentication required."
               }
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "Complete Patient Flow Examples",
-      "item": [
-        {
-          "name": "Example 1: First-time Patient Booking",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    const response = pm.response.json();",
-                  "    pm.collectionVariables.set('example1_patient_id', response.patientId);",
-                  "    pm.collectionVariables.set('example1_appointment_id', response.appointment._id);",
-                  "    console.log('New Patient ID Generated:', response.patientId);",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-20\",\n  \"time\": \"08:00\",\n  \"patientName\": \"Alice Johnson\",\n  \"patientEmail\": \"alice.johnson@email.com\",\n  \"patientContact\": \"+1555123456\",\n  \"patientAge\": 28,\n  \"patientGender\": \"Female\",\n  \"patientAddress\": \"456 Oak Avenue, Springfield\",\n  \"emergencyContact\": \"+1555987654\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/appointments/book",
-              "host": ["{{base_url}}"],
-              "path": ["appointments", "book"]
-            }
-          }
-        },
-        {
-          "name": "Example 2: Returning Patient Booking",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    const response = pm.response.json();",
-                  "    console.log('Existing Patient ID Used:', response.patientId);",
-                  "    pm.collectionVariables.set('example2_appointment_id', response.appointment._id);",
-                  "}"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-22\",\n  \"time\": \"13:00\",\n  \"patientName\": \"Alice Johnson\",\n  \"patientEmail\": \"alice.johnson@email.com\",\n  \"patientContact\": \"+1555123456\",\n  \"patientAge\": 28,\n  \"patientGender\": \"Female\",\n  \"patientAddress\": \"456 Oak Avenue, Springfield\",\n  \"emergencyContact\": \"+1555987654\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/appointments/book",
-              "host": ["{{base_url}}"],
-              "path": ["appointments", "book"]
-            }
-          }
-        },
-        {
-          "name": "Example 3: View Complete Patient History",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{base_url}}/appointments/patient/{{example1_patient_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["appointments", "patient", "{{example1_patient_id}}"]
-            }
-          }
-        },
-        {
-          "name": "Example 4: Cancel Appointment",
-          "request": {
-            "method": "DELETE",
-            "url": {
-              "raw": "{{base_url}}/appointments/patient/{{example1_patient_id}}/cancel/{{example2_appointment_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["appointments", "patient", "{{example1_patient_id}}", "cancel", "{{example2_appointment_id}}"]
-            }
-          }
         }
       ]
     },

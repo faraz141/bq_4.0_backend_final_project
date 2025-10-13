@@ -3,23 +3,52 @@ const Doctor = require("../models/doctorModel");
 const User = require("../models/UserModel");
 const Patient = require("../models/patientModel");
 const Joi = require("joi");
+const mongoose = require("mongoose");
 
+// Flexible schema for both new and existing patients
 const bookAppointmentSchema = Joi.object({
   doctorId: Joi.string().required(),
   departmentId: Joi.string().required(),
   date: Joi.string().required(),
   time: Joi.string().required(),
-  // Patient information
-  patientName: Joi.string().required(),
-  patientEmail: Joi.string().email().required(),
-  patientContact: Joi.string().required(),
-  patientAge: Joi.number().min(1).max(120).required(),
-  patientGender: Joi.string().valid("Male", "Female", "Other").required(),
+  
+  // For existing patients - just provide patientId
+  patientId: Joi.string().optional(),
+  
+  // For new patients - provide full details
+  patientName: Joi.string().when('patientId', {
+    is: Joi.exist(),
+    then: Joi.optional(),
+    otherwise: Joi.required()
+  }),
+  patientEmail: Joi.string().email().when('patientId', {
+    is: Joi.exist(),
+    then: Joi.optional(),
+    otherwise: Joi.required()
+  }),
+  patientContact: Joi.string().when('patientId', {
+    is: Joi.exist(),
+    then: Joi.optional(),
+    otherwise: Joi.required()
+  }),
+  patientAge: Joi.number().min(1).max(120).when('patientId', {
+    is: Joi.exist(),
+    then: Joi.optional(),
+    otherwise: Joi.required()
+  }),
+  patientGender: Joi.string().valid("Male", "Female", "Other").when('patientId', {
+    is: Joi.exist(),
+    then: Joi.optional(),
+    otherwise: Joi.required()
+  }),
   patientAddress: Joi.string().optional(),
   emergencyContact: Joi.string().optional(),
 });
 
 // Patient books appointment without authentication (public endpoint)
+// Supports two flows:
+// 1. New Patient: Provide full details (name, email, contact, age, gender) - auto-generates Patient ID
+// 2. Existing Patient: Provide only patientId (e.g., PAT-2025-000001)
 exports.bookAppointment = async (req, res) => {
   try {
     const { error } = bookAppointmentSchema.validate(req.body);
@@ -31,6 +60,7 @@ exports.bookAppointment = async (req, res) => {
       departmentId, 
       date, 
       time,
+      patientId,
       patientName,
       patientEmail,
       patientContact,
@@ -78,13 +108,51 @@ exports.bookAppointment = async (req, res) => {
       });
     }
 
-    // Check if patient already exists by email or contact
-    let patient = await Patient.findOne({
-      $or: [{ email: patientEmail }, { contact: patientContact }]
-    });
+    let patient;
+    let isNewPatient = false;
 
-    // If patient doesn't exist, create new patient with auto-generated ID
-    if (!patient) {
+    // FLOW 1: Existing Patient - Book with Patient ID
+    if (patientId) {
+      // Check if patientId is a valid MongoDB ObjectId
+      if (mongoose.Types.ObjectId.isValid(patientId)) {
+        // Try to find patient by MongoDB _id
+        patient = await Patient.findById(patientId);
+      }
+      
+      // If not found by _id, try to find by patientId field (e.g., PAT-2025-000001)
+      if (!patient) {
+        patient = await Patient.findOne({ patientId: patientId });
+      }
+
+      if (!patient) {
+        return res.status(404).json({ 
+          message: "Patient not found. Please provide patient details to register as a new patient." 
+        });
+      }
+    } 
+    // FLOW 2: New Patient - Book with full details
+    else {
+      // Validate that required fields are provided
+      if (!patientName || !patientEmail || !patientContact || !patientAge || !patientGender) {
+        return res.status(400).json({ 
+          message: "For new patients, please provide: patientName, patientEmail, patientContact, patientAge, and patientGender" 
+        });
+      }
+
+      // Check if patient already exists by email or contact
+      patient = await Patient.findOne({
+        $or: [{ email: patientEmail }, { contact: patientContact }]
+      });
+
+      if (patient) {
+        // Patient exists but didn't provide patientId
+        return res.status(400).json({ 
+          message: `Patient already exists with Patient ID: ${patient.patientId}. Please use this Patient ID to book appointments.`,
+          existingPatientId: patient.patientId
+        });
+      }
+
+      // Create new patient with auto-generated ID
       patient = new Patient({
         name: patientName,
         email: patientEmail,
@@ -95,14 +163,7 @@ exports.bookAppointment = async (req, res) => {
         emergencyContact: emergencyContact,
       });
       await patient.save();
-    } else {
-      // Update existing patient information if needed
-      patient.name = patientName;
-      patient.age = patientAge;
-      patient.gender = patientGender;
-      patient.address = patientAddress || patient.address;
-      patient.emergencyContact = emergencyContact || patient.emergencyContact;
-      await patient.save();
+      isNewPatient = true;
     }
 
     // Create appointment
@@ -124,11 +185,29 @@ exports.bookAppointment = async (req, res) => {
       { path: "patientId", select: "patientId name email contact age gender" },
     ]);
 
-    res.status(201).json({
-      message: "Appointment booked successfully",
+    // Prepare response based on patient type
+    const response = {
+      message: isNewPatient 
+        ? "New patient registered and appointment booked successfully" 
+        : "Appointment booked successfully for existing patient",
+      isNewPatient: isNewPatient,
       patientId: patient.patientId,
-      appointment,
-    });
+      patientDetails: {
+        id: patient._id,
+        patientId: patient.patientId,
+        name: patient.name,
+        email: patient.email,
+        contact: patient.contact,
+      },
+      appointment: appointment,
+    };
+
+    // Add note for new patients
+    if (isNewPatient) {
+      response.note = "Save your Patient ID for future appointments. You can book future appointments using just this Patient ID.";
+    }
+
+    res.status(201).json(response);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -162,7 +241,7 @@ exports.getPatientAppointmentHistory = async (req, res) => {
         {
           path: "doctorId",
           select: "name specialization",
-          populate: { path: "departmentIds", select: "name" },
+          populate: { path: "departmentId", select: "name" },
         },
         { path: "departmentId", select: "name description" },
       ])

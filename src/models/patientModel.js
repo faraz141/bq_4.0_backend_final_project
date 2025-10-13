@@ -4,7 +4,7 @@ const patientSchema = new mongoose.Schema({
   patientId: {
     type: String,
     unique: true,
-    required: true,
+    required: false, // Auto-generated in pre-save hook, so not required at creation
   },
   name: { type: String, required: true },
   email: { type: String, required: true },
@@ -25,8 +25,7 @@ const patientSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Add indexes for performance
-patientSchema.index({ patientId: 1 }, { unique: true });
+// Add indexes for performance (patientId index is automatic via unique: true)
 patientSchema.index({ email: 1 });
 patientSchema.index({ contact: 1 });
 
