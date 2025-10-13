@@ -1,14 +1,14 @@
 const express = require("express");
 require("dotenv").config();
 const app = express();
-const dbConnection = require("./config/db_connection");
-const { CronJobService } = require("./services/cronJobService");
-const authRoutes = require("./routes/authRoutes");
-const departmentRoutes = require("./routes/departmentRoutes");
-const doctorRoutes = require("./routes/doctorRoutes");
-const appointmentRoutes = require("./routes/appointmentRoutes");
-const adminRoutes = require("./routes/adminRoutes");
-const staffRoutes = require("./routes/staffRoutes");
+const dbConnection = require("./src/config/db_connection");
+const { CronJobService } = require("./src/services/cronJobService");
+const authRoutes = require("./src/routes/authRoutes");
+const departmentRoutes = require("./src/routes/departmentRoutes");
+const doctorRoutes = require("./src/routes/doctorRoutes");
+const appointmentRoutes = require("./src/routes/appointmentRoutes");
+const adminRoutes = require("./src/routes/adminRoutes");
+const staffRoutes = require("./src/routes/staffRoutes");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -118,8 +118,8 @@ app.use("/api/doctors", doctorRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/staff", staffRoutes);
-app.use("/api/analytics", require("./routes/analyticsRoutes"));
-app.use("/api/cron", require("./routes/cronRoutes"));
+app.use("/api/analytics", require("./src/routes/analyticsRoutes"));
+app.use("/api/cron", require("./src/routes/cronRoutes"));
 
 // Additional monitoring endpoints
 app.get("/status", (req, res) => {
@@ -132,11 +132,11 @@ app.get("/status", (req, res) => {
 
 app.get("/api/system/info", async (req, res) => {
   try {
-    const User = require("./models/UserModel");
-    const Doctor = require("./models/doctorModel");
-    const Staff = require("./models/staffModel");
-    const Department = require("./models/deparmentModel");
-    const Appointment = require("./models/appointmentModel");
+    const User = require("./src/models/UserModel");
+    const Doctor = require("./src/models/doctorModel");
+    const Staff = require("./src/models/staffModel");
+    const Department = require("./src/models/deparmentModel");
+    const Appointment = require("./src/models/appointmentModel");
 
     const stats = {
       system: {

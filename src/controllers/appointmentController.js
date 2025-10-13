@@ -55,9 +55,27 @@ exports.bookAppointment = async (req, res) => {
     }
 
     // Verify doctor exists and is active
-    const doctor = await User.findById(doctorId);
-    if (!doctor || doctor.role !== "doctor") {
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor || doctor.status !== "Active") {
       return res.status(400).json({ message: "Doctor not available" });
+    }
+
+    // Check if the requested date is an available day for the doctor
+    const requestedDate = new Date(date);
+    const dayName = requestedDate.toLocaleDateString("en-US", { weekday: "long" });
+    
+    if (!doctor.availableDays.includes(dayName)) {
+      return res.status(400).json({ 
+        message: `Doctor is not available on ${dayName}s` 
+      });
+    }
+
+    // Check if the requested time slot exists in doctor's timeSlots
+    const timeSlotExists = doctor.timeSlots.some(slot => slot.startTime === time);
+    if (!timeSlotExists) {
+      return res.status(400).json({ 
+        message: "Invalid time slot. Please check doctor's available time slots." 
+      });
     }
 
     // Check if patient already exists by email or contact

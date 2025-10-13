@@ -13,8 +13,8 @@ const {
 } = require("../middleware/authMiddleware");
 
 // Public routes
-router.get("/", authenticate, getDoctors);
-router.get("/:doctorId/availability", authenticate, getDoctorAvailability);
+router.get("/", getDoctors);
+router.get("/:doctorId/availability", getDoctorAvailability);
 
 // Doctor-specific routes
 router.get(
