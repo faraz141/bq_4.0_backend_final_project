@@ -75,6 +75,11 @@
       "key": "user_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "patient_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -1045,13 +1050,14 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"patientId\": \"{{patient_id}}\",\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2024-10-15\",\n  \"time\": \"09:00\"\n}"
+                  "raw": "{\n  \"patientId\": \"{{patient_id}}\",\n  \"doctorId\": \"{{doctor_id}}\",\n  \"departmentId\": \"{{department_id}}\",\n  \"date\": \"2025-10-15\",\n  \"time\": \"09:00\"\n}"
                 },
                 "url": {
                   "raw": "{{base_url}}/staff/book-appointment",
                   "host": ["{{base_url}}"],
                   "path": ["staff", "book-appointment"]
-                }
+                },
+                "description": "Book appointment for a patient. Use either Patient MongoDB _id or Patient ID (e.g., PAT-2025-000001) for patientId field."
               }
             },
             {

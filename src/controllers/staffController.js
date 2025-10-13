@@ -1,6 +1,7 @@
 const Appointment = require("../models/appointmentModel");
 const Doctor = require("../models/doctorModel");
 const User = require("../models/UserModel");
+const Patient = require("../models/patientModel");
 const Joi = require("joi");
 
 const bookAppointmentSchema = Joi.object({
@@ -20,6 +21,17 @@ exports.bookAppointmentForPatient = async (req, res) => {
 
     const { patientId, doctorId, departmentId, date, time } = req.body;
 
+    // Verify patient exists (patientId can be either Patient _id or patientId field)
+    let patient = await Patient.findById(patientId);
+    if (!patient) {
+      // Try to find by patientId field (e.g., PAT-2025-000001)
+      patient = await Patient.findOne({ patientId: patientId });
+    }
+    
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
     // Check if slot is available
     const existingAppointment = await Appointment.findOne({
       doctorId,
@@ -35,7 +47,7 @@ exports.bookAppointmentForPatient = async (req, res) => {
       if (nextAvailableSlot) {
         const appointment = new Appointment({
           doctorId,
-          userId: patientId,
+          patientId: patient._id,
           departmentId,
           date: nextAvailableSlot.date,
           time: nextAvailableSlot.time,
@@ -46,7 +58,7 @@ exports.bookAppointmentForPatient = async (req, res) => {
         await appointment.save();
         await appointment.populate([
           { path: "doctorId", select: "name specialization" },
-          { path: "userId", select: "name email" },
+          { path: "patientId", select: "patientId name email contact" },
           { path: "departmentId", select: "name" },
         ]);
 
@@ -66,7 +78,7 @@ exports.bookAppointmentForPatient = async (req, res) => {
     // Book in requested slot
     const appointment = new Appointment({
       doctorId,
-      userId: patientId,
+      patientId: patient._id,
       departmentId,
       date,
       time,
@@ -77,7 +89,7 @@ exports.bookAppointmentForPatient = async (req, res) => {
     await appointment.save();
     await appointment.populate([
       { path: "doctorId", select: "name specialization" },
-      { path: "userId", select: "name email" },
+      { path: "patientId", select: "patientId name email contact" },
       { path: "departmentId", select: "name" },
     ]);
 

@@ -6,7 +6,11 @@ const appointmentSchema = new mongoose.Schema({
     ref: "Doctor",
     required: true,
   },
-  patientId: { type: mongoose.Schema.Types.ObjectId, ref: "Patient", required: true }, // Patient ID
+  patientId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Patient",
+    required: true,
+  }, // Patient ID
   departmentId: { type: mongoose.Schema.Types.ObjectId, ref: "Department" },
   date: { type: String, required: true }, // YYYY-MM-DD
   time: { type: String, required: true }, // Single time field as per requirement

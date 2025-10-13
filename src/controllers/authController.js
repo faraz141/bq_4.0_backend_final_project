@@ -48,7 +48,10 @@ exports.registerUser = async (req, res) => {
       role: role || "patient",
     });
     await user.save();
-    res.status(201).json({ message: "User registered successfully" });
+    
+    // Dynamic message based on role
+    const roleMessage = role === "admin" ? "Admin created successfully" : "User registered successfully";
+    res.status(201).json({ message: roleMessage });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -65,17 +68,20 @@ exports.loginUser = async (req, res) => {
     // Try to find user in User collection (admin/patient)
     let user = await User.findOne({ email });
     let userType = "user";
+    let userRole = null;
 
     // If not found, try Staff collection
     if (!user) {
       user = await Staff.findOne({ email });
       userType = "staff";
+      userRole = user?.role || "staff"; // Staff model has role (staff/subadmin)
     }
 
     // If not found, try Doctor collection
     if (!user) {
       user = await Doctor.findOne({ email });
       userType = "doctor";
+      userRole = "doctor"; // Doctors don't have role field, set explicitly
     }
 
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
@@ -83,8 +89,11 @@ exports.loginUser = async (req, res) => {
     const valid = await user.comparePassword(password);
     if (!valid) return res.status(400).json({ message: "Invalid credentials" });
 
+    // Use userRole for token (handles all cases)
+    const role = user.role || userRole;
+
     const token = jwt.sign(
-      { id: user._id, role: user.role, userType },
+      { id: user._id, role: role, userType },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -92,7 +101,7 @@ exports.loginUser = async (req, res) => {
     res.json({
       message: "Login successful",
       token,
-      user: { id: user._id, name: user.name, role: user.role, userType },
+      user: { id: user._id, name: user.name, role: role, userType },
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
