@@ -17,8 +17,7 @@ const departmentSchema = new mongoose.Schema({
   updatedAt: { type: Date },
 });
 
-// Add indexes for performance
-departmentSchema.index({ name: 1 }, { unique: true });
+// Add indexes for performance (name index is automatic via unique: true)
 departmentSchema.index({ createdBy: 1 });
 
 module.exports = mongoose.model("Department", departmentSchema);
