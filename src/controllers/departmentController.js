@@ -33,9 +33,12 @@ exports.updateDepartment = async (req, res) => {
       req.params.id,
       updateData,
       { new: true }
-    ).select('-createdBy -createdAt +updatedBy +updatedAt');
+    );
     
-    res.json(updated);
+    res.json({
+      message: "Department updated successfully",
+      department: updated
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
