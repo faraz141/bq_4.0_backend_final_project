@@ -71,12 +71,10 @@ exports.createStaff = async (req, res) => {
     });
 
     await staff.save();
-    res
-      .status(201)
-      .json({
-        message: "Staff created successfully",
-        staff: { ...staff.toObject(), password: undefined },
-      });
+    res.status(201).json({
+      message: "Staff created successfully",
+      staff: { ...staff.toObject(), password: undefined },
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -85,11 +83,20 @@ exports.createStaff = async (req, res) => {
 exports.updateStaff = async (req, res) => {
   try {
     const { name, departmentId, role } = req.body;
-    const staff = await Staff.findByIdAndUpdate(
-      req.params.id,
-      { name, departmentId, role },
-      { new: true }
-    ).select("-password");
+
+    const updateData = {
+      name,
+      departmentId,
+      role,
+      updatedBy: req.user._id,
+      updatedAt: new Date(),
+    };
+
+    const staff = await Staff.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    })
+      .select("-password")
+      .populate("updatedBy", "name email");
 
     if (!staff) return res.status(404).json({ message: "Staff not found" });
     res.json(staff);
@@ -157,12 +164,10 @@ exports.createDoctor = async (req, res) => {
     });
 
     await doctor.save();
-    res
-      .status(201)
-      .json({
-        message: "Doctor created successfully",
-        doctor: { ...doctor.toObject(), password: undefined },
-      });
+    res.status(201).json({
+      message: "Doctor created successfully",
+      doctor: { ...doctor.toObject(), password: undefined },
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -178,11 +183,23 @@ exports.updateDoctor = async (req, res) => {
       timeSlots,
       status,
     } = req.body;
-    const doctor = await Doctor.findByIdAndUpdate(
-      req.params.id,
-      { name, specialization, departmentId, availableDays, timeSlots, status },
-      { new: true }
-    ).select("-password");
+
+    const updateData = {
+      name,
+      specialization,
+      departmentId,
+      availableDays,
+      timeSlots,
+      status,
+      updatedBy: req.user._id,
+      updatedAt: new Date(),
+    };
+
+    const doctor = await Doctor.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    })
+      .select("-password")
+      .populate("updatedBy", "name email");
 
     if (!doctor) return res.status(404).json({ message: "Doctor not found" });
     res.json(doctor);

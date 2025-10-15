@@ -28,16 +28,22 @@ exports.updateDepartment = async (req, res) => {
       updatedBy: req.user._id,
       updatedAt: new Date(),
     };
-    
+
     const updated = await Department.findByIdAndUpdate(
       req.params.id,
       updateData,
       { new: true }
     );
-    
+
+    if (!updated) {
+      return res.status(404).json({
+        message: "Department not found or has been deleted",
+      });
+    }
+
     res.json({
       message: "Department updated successfully",
-      department: updated
+      department: updated,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

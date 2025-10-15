@@ -673,7 +673,11 @@
                 "url": {
                   "raw": "{{base_url}}/appointments/{{appointment_id_generated}}/status",
                   "host": ["{{base_url}}"],
-                  "path": ["appointments", "{{appointment_id_generated}}", "status"]
+                  "path": [
+                    "appointments",
+                    "{{appointment_id_generated}}",
+                    "status"
+                  ]
                 }
               }
             }
@@ -1445,7 +1449,11 @@
             "url": {
               "raw": "{{base_url}}/appointments/search-patient/{{patient_id_generated}}",
               "host": ["{{base_url}}"],
-              "path": ["appointments", "search-patient", "{{patient_id_generated}}"]
+              "path": [
+                "appointments",
+                "search-patient",
+                "{{patient_id_generated}}"
+              ]
             }
           }
         },
@@ -1473,7 +1481,13 @@
             "url": {
               "raw": "{{base_url}}/appointments/patient/{{patient_id_generated}}/cancel/{{appointment_id_generated}}",
               "host": ["{{base_url}}"],
-              "path": ["appointments", "patient", "{{patient_id_generated}}", "cancel", "{{appointment_id_generated}}"]
+              "path": [
+                "appointments",
+                "patient",
+                "{{patient_id_generated}}",
+                "cancel",
+                "{{appointment_id_generated}}"
+              ]
             },
             "description": "Cancel an appointment using Patient ID and Appointment ID. No authentication required."
           }

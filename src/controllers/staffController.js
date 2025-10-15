@@ -10,36 +10,38 @@ const mongoose = require("mongoose");
 const bookAppointmentSchema = Joi.object({
   // Patient identification (use patientId for existing, or provide details for new)
   patientId: Joi.string().optional(),
-  
+
   // New patient fields (required only if patientId is not provided)
-  patientName: Joi.string().when('patientId', {
+  patientName: Joi.string().when("patientId", {
     is: Joi.exist(),
     then: Joi.optional(),
-    otherwise: Joi.required()
+    otherwise: Joi.required(),
   }),
-  patientEmail: Joi.string().email().when('patientId', {
+  patientEmail: Joi.string().email().when("patientId", {
     is: Joi.exist(),
     then: Joi.optional(),
-    otherwise: Joi.required()
+    otherwise: Joi.required(),
   }),
-  patientContact: Joi.string().when('patientId', {
+  patientContact: Joi.string().when("patientId", {
     is: Joi.exist(),
     then: Joi.optional(),
-    otherwise: Joi.required()
+    otherwise: Joi.required(),
   }),
-  patientAge: Joi.number().when('patientId', {
+  patientAge: Joi.number().when("patientId", {
     is: Joi.exist(),
     then: Joi.optional(),
-    otherwise: Joi.required()
+    otherwise: Joi.required(),
   }),
-  patientGender: Joi.string().valid('Male', 'Female', 'Other').when('patientId', {
-    is: Joi.exist(),
-    then: Joi.optional(),
-    otherwise: Joi.required()
-  }),
+  patientGender: Joi.string()
+    .valid("Male", "Female", "Other")
+    .when("patientId", {
+      is: Joi.exist(),
+      then: Joi.optional(),
+      otherwise: Joi.required(),
+    }),
   patientAddress: Joi.string().optional(),
   emergencyContact: Joi.string().optional(),
-  
+
   // Appointment details (always required)
   doctorId: Joi.string().required(),
   departmentId: Joi.string().required(),
@@ -54,19 +56,19 @@ exports.bookAppointmentForPatient = async (req, res) => {
     if (error)
       return res.status(400).json({ message: error.details[0].message });
 
-    const { 
-      patientId, 
-      patientName, 
-      patientEmail, 
-      patientContact, 
-      patientAge, 
-      patientGender, 
-      patientAddress, 
+    const {
+      patientId,
+      patientName,
+      patientEmail,
+      patientContact,
+      patientAge,
+      patientGender,
+      patientAddress,
       emergencyContact,
-      doctorId, 
-      departmentId, 
-      date, 
-      time 
+      doctorId,
+      departmentId,
+      date,
+      time,
     } = req.body;
 
     // Get staff's department
@@ -77,8 +79,8 @@ exports.bookAppointmentForPatient = async (req, res) => {
 
     // Verify the appointment is for staff's department only
     if (departmentId !== staff.departmentId.toString()) {
-      return res.status(403).json({ 
-        message: "You can only book appointments for your own department" 
+      return res.status(403).json({
+        message: "You can only book appointments for your own department",
       });
     }
 
@@ -88,8 +90,8 @@ exports.bookAppointmentForPatient = async (req, res) => {
       return res.status(404).json({ message: "Doctor not found" });
     }
     if (doctor.departmentId.toString() !== staff.departmentId.toString()) {
-      return res.status(403).json({ 
-        message: "This doctor does not belong to your department" 
+      return res.status(403).json({
+        message: "This doctor does not belong to your department",
       });
     }
 
@@ -102,36 +104,44 @@ exports.bookAppointmentForPatient = async (req, res) => {
       if (mongoose.Types.ObjectId.isValid(patientId)) {
         patient = await Patient.findById(patientId);
       }
-      
+
       // If not found by _id, try to find by patientId field (e.g., PAT-2025-000001)
       if (!patient) {
         patient = await Patient.findOne({ patientId: patientId });
       }
 
       if (!patient) {
-        return res.status(404).json({ 
-          message: "Patient not found. Please provide patient details to register as a new patient." 
+        return res.status(404).json({
+          message:
+            "Patient not found. Please provide patient details to register as a new patient.",
         });
       }
-    } 
+    }
     // FLOW 2: New Patient - Book with full details
     else {
       // Validate that required fields are provided
-      if (!patientName || !patientEmail || !patientContact || !patientAge || !patientGender) {
-        return res.status(400).json({ 
-          message: "For new patients, please provide: patientName, patientEmail, patientContact, patientAge, and patientGender" 
+      if (
+        !patientName ||
+        !patientEmail ||
+        !patientContact ||
+        !patientAge ||
+        !patientGender
+      ) {
+        return res.status(400).json({
+          message:
+            "For new patients, please provide: patientName, patientEmail, patientContact, patientAge, and patientGender",
         });
       }
 
       // Check if patient already exists by email or contact
       patient = await Patient.findOne({
-        $or: [{ email: patientEmail }, { contact: patientContact }]
+        $or: [{ email: patientEmail }, { contact: patientContact }],
       });
 
       if (patient) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: `Patient already exists with Patient ID: ${patient.patientId}. Please use this Patient ID to book appointments.`,
-          existingPatientId: patient.patientId
+          existingPatientId: patient.patientId,
         });
       }
 
@@ -220,8 +230,8 @@ exports.bookAppointmentForPatient = async (req, res) => {
     ]);
 
     const response = {
-      message: isNewPatient 
-        ? "New patient registered and appointment booked successfully" 
+      message: isNewPatient
+        ? "New patient registered and appointment booked successfully"
         : "Appointment booked successfully for existing patient",
       isNewPatient: isNewPatient,
       patientId: patient.patientId,
@@ -236,7 +246,8 @@ exports.bookAppointmentForPatient = async (req, res) => {
     };
 
     if (isNewPatient) {
-      response.note = "Save your Patient ID for future appointments. You can book future appointments using just this Patient ID.";
+      response.note =
+        "Save your Patient ID for future appointments. You can book future appointments using just this Patient ID.";
     }
 
     res.status(201).json(response);
@@ -268,9 +279,11 @@ exports.updateAppointmentStatus = async (req, res) => {
       return res.status(404).json({ message: "Appointment not found" });
     }
 
-    if (appointmentCheck.departmentId.toString() !== staff.departmentId.toString()) {
-      return res.status(403).json({ 
-        message: "You can only update appointments in your own department" 
+    if (
+      appointmentCheck.departmentId.toString() !== staff.departmentId.toString()
+    ) {
+      return res.status(403).json({
+        message: "You can only update appointments in your own department",
       });
     }
 
@@ -306,9 +319,9 @@ exports.getTodaySchedules = async (req, res) => {
 
     const todayAppointments = await Appointment.aggregate([
       {
-        $match: { 
+        $match: {
           date: today,
-          departmentId: staff.departmentId
+          departmentId: staff.departmentId,
         },
       },
       {
@@ -391,7 +404,7 @@ exports.getAllAppointments = async (req, res) => {
     }
 
     const { status, date, doctorId } = req.query;
-    
+
     // Always filter by staff's department
     const filter = { departmentId: staff.departmentId };
 
@@ -400,9 +413,12 @@ exports.getAllAppointments = async (req, res) => {
     if (doctorId) {
       // Verify doctor belongs to staff's department
       const doctor = await Doctor.findById(doctorId);
-      if (!doctor || doctor.departmentId.toString() !== staff.departmentId.toString()) {
-        return res.status(403).json({ 
-          message: "This doctor does not belong to your department" 
+      if (
+        !doctor ||
+        doctor.departmentId.toString() !== staff.departmentId.toString()
+      ) {
+        return res.status(403).json({
+          message: "This doctor does not belong to your department",
         });
       }
       filter.doctorId = doctorId;
@@ -416,7 +432,7 @@ exports.getAllAppointments = async (req, res) => {
 
     res.json({
       total: appointments.length,
-      appointments: appointments
+      appointments: appointments,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -433,19 +449,19 @@ exports.getDailySchedule = async (req, res) => {
     }
 
     const { date } = req.params;
-    
+
     // Validate date format
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return res.status(400).json({ 
-        message: "Invalid date format. Use YYYY-MM-DD" 
+      return res.status(400).json({
+        message: "Invalid date format. Use YYYY-MM-DD",
       });
     }
 
     const dailyAppointments = await Appointment.aggregate([
       {
-        $match: { 
+        $match: {
           date: date,
-          departmentId: staff.departmentId
+          departmentId: staff.departmentId,
         },
       },
       {
@@ -512,11 +528,14 @@ exports.getDailySchedule = async (req, res) => {
       },
     ]);
 
-    res.json({ 
-      date: date, 
+    res.json({
+      date: date,
       schedules: dailyAppointments,
       totalDoctors: dailyAppointments.length,
-      totalAppointments: dailyAppointments.reduce((sum, doc) => sum + doc.totalAppointments, 0)
+      totalAppointments: dailyAppointments.reduce(
+        (sum, doc) => sum + doc.totalAppointments,
+        0
+      ),
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

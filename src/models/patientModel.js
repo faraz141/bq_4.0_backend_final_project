@@ -10,18 +10,20 @@ const patientSchema = new mongoose.Schema({
   email: { type: String, required: true },
   contact: { type: String, required: true },
   age: { type: Number, required: true },
-  gender: { 
-    type: String, 
-    enum: ["Male", "Female", "Other"], 
-    required: true 
+  gender: {
+    type: String,
+    enum: ["Male", "Female", "Other"],
+    required: true,
   },
   address: { type: String },
   emergencyContact: { type: String },
-  medicalHistory: [{ 
-    condition: String,
-    date: Date,
-    notes: String 
-  }],
+  medicalHistory: [
+    {
+      condition: String,
+      date: Date,
+      notes: String,
+    },
+  ],
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -35,7 +37,7 @@ patientSchema.pre("save", async function (next) {
     // Generate patient ID in format: PAT-YYYY-NNNNNN
     const year = new Date().getFullYear();
     const count = await mongoose.model("Patient").countDocuments();
-    const paddedCount = String(count + 1).padStart(6, '0');
+    const paddedCount = String(count + 1).padStart(6, "0");
     this.patientId = `PAT-${year}-${paddedCount}`;
   }
   next();

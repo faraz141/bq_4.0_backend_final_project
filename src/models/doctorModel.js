@@ -38,6 +38,11 @@ const doctorSchema = new mongoose.Schema({
     required: true,
   },
   createdAt: { type: Date, default: Date.now },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  updatedAt: { type: Date },
 });
 
 // Add indexes for performance (email index is automatic via unique: true)
