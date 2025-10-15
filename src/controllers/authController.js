@@ -48,9 +48,12 @@ exports.registerUser = async (req, res) => {
       role: role || "patient",
     });
     await user.save();
-    
+
     // Dynamic message based on role
-    const roleMessage = role === "admin" ? "Admin created successfully" : "User registered successfully";
+    const roleMessage =
+      role === "admin"
+        ? "Admin created successfully"
+        : "User registered successfully";
     res.status(201).json({ message: roleMessage });
   } catch (err) {
     res.status(500).json({ message: err.message });
