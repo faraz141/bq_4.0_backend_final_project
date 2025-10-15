@@ -16,13 +16,13 @@ const {
   authorizeRoles,
 } = require("../middleware/authMiddleware");
 
-// Public routes (no authentication required)
-router.post("/book", bookAppointment); // Book appointment without registration
-router.get("/patient/:patientId", getPatientAppointmentHistory); // Get appointment history by patient ID
-router.delete("/patient/:patientId/cancel/:appointmentId", cancelAppointmentByPatientId); // Cancel appointment by patient ID
-router.get("/search-patient/:patientId", searchPatient); // Search patient by patient ID
 
-// Authenticated Patient routes (kept for backward compatibility)
+router.post("/book", bookAppointment); 
+router.get("/patient/:patientId", getPatientAppointmentHistory);
+router.delete("/patient/:patientId/cancel/:appointmentId", cancelAppointmentByPatientId); 
+router.get("/search-patient/:patientId", searchPatient); 
+
+
 router.get(
   "/my-history",
   authenticate,
@@ -36,7 +36,7 @@ router.delete(
   cancelAppointment
 );
 
-// Admin/Staff routes
+
 router.put(
   "/:id/status",
   authenticate,

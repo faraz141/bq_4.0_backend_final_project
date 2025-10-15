@@ -29,7 +29,6 @@ exports.registerUser = async (req, res) => {
     const { name, email, password, age, gender, contact, address, role } =
       req.body;
 
-    // Check if email exists in any collection
     const userExists = await User.findOne({ email });
     const staffExists = await Staff.findOne({ email });
     const doctorExists = await Doctor.findOne({ email });
@@ -48,9 +47,11 @@ exports.registerUser = async (req, res) => {
       role: role || "patient",
     });
     await user.save();
-    
-    // Dynamic message based on role
-    const roleMessage = role === "admin" ? "Admin created successfully" : "User registered successfully";
+
+    const roleMessage =
+      role === "admin"
+        ? "Admin created successfully"
+        : "User registered successfully";
     res.status(201).json({ message: roleMessage });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -65,23 +66,20 @@ exports.loginUser = async (req, res) => {
 
     const { email, password } = req.body;
 
-    // Try to find user in User collection (admin/patient)
     let user = await User.findOne({ email });
     let userType = "user";
     let userRole = null;
 
-    // If not found, try Staff collection
     if (!user) {
       user = await Staff.findOne({ email });
       userType = "staff";
-      userRole = user?.role || "staff"; // Staff model has role (staff/subadmin)
+      userRole = user?.role || "staff";
     }
 
-    // If not found, try Doctor collection
     if (!user) {
       user = await Doctor.findOne({ email });
       userType = "doctor";
-      userRole = "doctor"; // Doctors don't have role field, set explicitly
+      userRole = "doctor";
     }
 
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
@@ -89,7 +87,6 @@ exports.loginUser = async (req, res) => {
     const valid = await user.comparePassword(password);
     if (!valid) return res.status(400).json({ message: "Invalid credentials" });
 
-    // Use userRole for token (handles all cases)
     const role = user.role || userRole;
 
     const token = jwt.sign(

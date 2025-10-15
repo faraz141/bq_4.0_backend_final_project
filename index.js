@@ -14,21 +14,21 @@ const healthRoutes = require("./src/routes/healthRoutes");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Initialize cron jobs
+
 let cronService;
 try {
   cronService = new CronJobService();
-  // Store cronService in app.locals for access in controllers
+ 
   app.locals.cronService = cronService;
   console.log("Cron jobs service initialized successfully");
 } catch (error) {
   console.error("Failed to initialize cron jobs:", error);
 }
 
-// Health and Status Routes (Public)
+
 app.use("/", healthRoutes);
 
-// API Routes
+
 app.use("/api/auth", authRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/doctors", doctorRoutes);
@@ -38,7 +38,7 @@ app.use("/api/staff", staffRoutes);
 app.use("/api/analytics", require("./src/routes/analyticsRoutes"));
 app.use("/api/cron", require("./src/routes/cronRoutes"));
 
-// Graceful shutdown
+
 process.on("SIGTERM", () => {
   console.log("SIGTERM received, shutting down gracefully");
   if (cronService) {

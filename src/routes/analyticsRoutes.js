@@ -12,7 +12,7 @@ const {
   authorizeRoles,
 } = require("../middleware/authMiddleware");
 
-// Doctors Monthly Appointment Report
+
 router.get(
   "/doctors-monthly-report",
   authenticate,
@@ -20,7 +20,7 @@ router.get(
   getDoctorsMonthlyReport
 );
 
-// Admin Dashboard
+
 router.get(
   "/admin-dashboard",
   authenticate,
@@ -28,7 +28,7 @@ router.get(
   getAdminDashboard
 );
 
-// Staff Daily Schedule
+
 router.get(
   "/daily-schedule",
   authenticate,
@@ -36,7 +36,7 @@ router.get(
   getStaffDailySchedule
 );
 
-// Missed vs Attended Report
+
 router.get(
   "/missed-vs-attended",
   authenticate,
@@ -44,7 +44,7 @@ router.get(
   getMissedVsAttendedReport
 );
 
-// User Appointment History with Details
+
 router.get(
   "/user-history/:userId",
   authenticate,

@@ -5,14 +5,9 @@ const Staff = require("../models/staffModel");
 const Department = require("../models/deparmentModel");
 const Appointment = require("../models/appointmentModel");
 
-/**
- * Database health check function
- * Checks MongoDB connection status and performs a test query
- */
 const checkDatabaseHealth = async () => {
   try {
     if (mongoose.connection.readyState === 1) {
-      // Test database query
       await User.findOne().limit(1);
 
       return {
@@ -46,10 +41,8 @@ const getHealthStatus = async (req, res) => {
   const startTime = Date.now();
 
   try {
-    // Check database connection
     const dbStatus = await checkDatabaseHealth();
 
-    // Check cron job status (if available)
     const cronService = req.app.locals.cronService;
     const cronStatus = cronService
       ? {
@@ -63,7 +56,6 @@ const getHealthStatus = async (req, res) => {
           jobs: [],
         };
 
-    // System information
     const systemInfo = {
       uptime: Math.floor(process.uptime()),
       memory: {

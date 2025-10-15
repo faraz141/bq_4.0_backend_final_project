@@ -4,7 +4,6 @@ const User = require("../models/UserModel");
 const Staff = require("../models/staffModel");
 const Department = require("../models/deparmentModel");
 
-// Doctors Monthly Appointment Report: Count appointments grouped by month
 exports.getDoctorsMonthlyReport = async (req, res) => {
   try {
     const { year, doctorId } = req.query;
@@ -21,7 +20,7 @@ exports.getDoctorsMonthlyReport = async (req, res) => {
       { $match: matchCondition },
       {
         $addFields: {
-          monthYear: { $substr: ["$date", 0, 7] }, // Extract YYYY-MM
+          monthYear: { $substr: ["$date", 0, 7] },
         },
       },
       {
@@ -82,7 +81,6 @@ exports.getDoctorsMonthlyReport = async (req, res) => {
   }
 };
 
-// Admin Dashboard: Appointments grouped by department
 exports.getAdminDashboard = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
@@ -158,7 +156,6 @@ exports.getAdminDashboard = async (req, res) => {
       { $sort: { totalAppointments: -1 } },
     ]);
 
-    // Overall hospital statistics
     const overallStats = await Appointment.aggregate([
       { $match: matchCondition },
       {
@@ -199,7 +196,6 @@ exports.getAdminDashboard = async (req, res) => {
       },
     ]);
 
-    // Entity counts
     const entityCounts = {
       totalDoctors: await Doctor.countDocuments(),
       activeDoctors: await Doctor.countDocuments({ status: "Active" }),
@@ -227,7 +223,6 @@ exports.getAdminDashboard = async (req, res) => {
   }
 };
 
-// Staff Daily Schedule: Joined data of doctors and patients for today
 exports.getStaffDailySchedule = async (req, res) => {
   try {
     const { date } = req.query;
@@ -289,7 +284,6 @@ exports.getStaffDailySchedule = async (req, res) => {
       { $sort: { time: 1 } },
     ]);
 
-    // Group by doctor for easier viewing
     const scheduleByDoctor = await Appointment.aggregate([
       { $match: { date: targetDate } },
       {
@@ -369,7 +363,6 @@ exports.getStaffDailySchedule = async (req, res) => {
   }
 };
 
-// Missed vs Attended Appointment Report: For hospital statistics
 exports.getMissedVsAttendedReport = async (req, res) => {
   try {
     const { startDate, endDate, departmentId, doctorId } = req.query;
@@ -504,7 +497,6 @@ exports.getMissedVsAttendedReport = async (req, res) => {
       { $sort: { totalAppointments: -1 } },
     ]);
 
-    // Overall summary
     const overallSummary = await Appointment.aggregate([
       { $match: matchCondition },
       {
@@ -550,7 +542,6 @@ exports.getMissedVsAttendedReport = async (req, res) => {
   }
 };
 
-// User Appointment History: With doctor and department details
 exports.getUserAppointmentHistory = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -618,7 +609,6 @@ exports.getUserAppointmentHistory = async (req, res) => {
       { $limit: parseInt(limit) },
     ]);
 
-    // Get appointment statistics for the user
     const userStats = await Appointment.aggregate([
       { $match: { userId } },
       {

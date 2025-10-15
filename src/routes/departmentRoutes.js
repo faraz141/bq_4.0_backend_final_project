@@ -11,7 +11,7 @@ const {
   authorizeRoles,
 } = require("../middleware/authMiddleware");
 
-// Protected routes
+
 router.get("/", getDepartments);
 router.post(
   "/",

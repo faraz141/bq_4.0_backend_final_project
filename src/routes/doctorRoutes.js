@@ -12,11 +12,11 @@ const {
   authorizeRoles,
 } = require("../middleware/authMiddleware");
 
-// Public routes
+
 router.get("/", getDoctors);
 router.get("/:doctorId/availability", getDoctorAvailability);
 
-// Doctor-specific routes
+
 router.get(
   "/my/today-appointments",
   authenticate,

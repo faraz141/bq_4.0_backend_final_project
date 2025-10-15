@@ -2,7 +2,6 @@ const { DailyStats } = require("../services/cronJobService");
 const Appointment = require("../models/appointmentModel");
 const moment = require("moment");
 
-// Get daily statistics
 exports.getDailyStatistics = async (req, res) => {
   try {
     const { startDate, endDate, page = 1, limit = 30 } = req.query;
@@ -25,7 +24,6 @@ exports.getDailyStatistics = async (req, res) => {
 
     const totalCount = await DailyStats.countDocuments(filter);
 
-    // Calculate summary statistics
     const summaryStats = await DailyStats.aggregate([
       { $match: filter },
       {
@@ -94,7 +92,6 @@ exports.getDailyStatistics = async (req, res) => {
   }
 };
 
-// Get statistics for a specific date
 exports.getStatsByDate = async (req, res) => {
   try {
     const { date } = req.params;
@@ -115,7 +112,6 @@ exports.getStatsByDate = async (req, res) => {
   }
 };
 
-// Manually trigger daily statistics generation for a specific date
 exports.generateStatsForDate = async (req, res) => {
   try {
     const { date } = req.body;
@@ -124,7 +120,6 @@ exports.generateStatsForDate = async (req, res) => {
       return res.status(400).json({ message: "Date is required" });
     }
 
-    // Check if stats already exist
     const existingStats = await DailyStats.findOne({ date });
     if (existingStats) {
       return res
@@ -132,7 +127,6 @@ exports.generateStatsForDate = async (req, res) => {
         .json({ message: "Statistics already exist for this date" });
     }
 
-    // Generate statistics manually
     const overallStats = await Appointment.aggregate([
       { $match: { date } },
       {
@@ -152,7 +146,6 @@ exports.generateStatsForDate = async (req, res) => {
       },
     ]);
 
-    // Generate department-wise statistics
     const departmentStats = await Appointment.aggregate([
       { $match: { date } },
       {
@@ -178,7 +171,6 @@ exports.generateStatsForDate = async (req, res) => {
       },
     ]);
 
-    // Generate doctor-wise statistics
     const doctorStats = await Appointment.aggregate([
       { $match: { date } },
       {
@@ -242,7 +234,6 @@ exports.generateStatsForDate = async (req, res) => {
   }
 };
 
-// Manually update missed appointments for a specific date
 exports.updateMissedAppointmentsForDate = async (req, res) => {
   try {
     const { date } = req.body;
@@ -251,7 +242,6 @@ exports.updateMissedAppointmentsForDate = async (req, res) => {
       return res.status(400).json({ message: "Date is required" });
     }
 
-    // Only allow updating past dates
     if (moment(date).isAfter(moment().subtract(1, "day"))) {
       return res
         .status(400)
@@ -278,13 +268,10 @@ exports.updateMissedAppointmentsForDate = async (req, res) => {
   }
 };
 
-// Get cron job execution summary
 exports.getCronJobSummary = async (req, res) => {
   try {
-    // Get latest daily stats to show cron job activity
     const latestStats = await DailyStats.findOne().sort({ date: -1 });
 
-    // Get appointment cleanup statistics
     const today = moment().format("YYYY-MM-DD");
     const yesterday = moment().subtract(1, "day").format("YYYY-MM-DD");
 
@@ -297,10 +284,8 @@ exports.getCronJobSummary = async (req, res) => {
       status: "Missed",
     });
 
-    // Get total daily stats count
     const totalDailyStatsRecords = await DailyStats.countDocuments();
 
-    // Get upcoming appointments that would need reminders
     const tomorrow = moment().add(1, "day").format("YYYY-MM-DD");
     const upcomingAppointments = await Appointment.countDocuments({
       date: tomorrow,

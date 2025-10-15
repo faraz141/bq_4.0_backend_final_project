@@ -12,7 +12,7 @@ const {
   authorizeRoles,
 } = require("../middleware/authMiddleware");
 
-// Staff Routes
+
 router.post(
   "/book-appointment",
   authenticate,

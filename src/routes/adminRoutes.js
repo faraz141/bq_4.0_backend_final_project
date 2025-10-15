@@ -17,7 +17,7 @@ const {
   authorizeRoles,
 } = require("../middleware/authMiddleware");
 
-// Staff Management Routes
+
 router.post("/staff", authenticate, authorizeRoles("admin"), createStaff);
 router.put("/staff/:id", authenticate, authorizeRoles("admin"), updateStaff);
 router.delete("/staff/:id", authenticate, authorizeRoles("admin"), deleteStaff);
@@ -28,7 +28,7 @@ router.get(
   getAllStaff
 );
 
-// Doctor Management Routes
+
 router.post("/doctors", authenticate, authorizeRoles("admin"), createDoctor);
 router.put("/doctors/:id", authenticate, authorizeRoles("admin"), updateDoctor);
 router.delete(
@@ -44,7 +44,7 @@ router.get(
   getAllDoctors
 );
 
-// Assignment Routes
+
 router.post(
   "/assign-doctors",
   authenticate,
@@ -52,7 +52,7 @@ router.post(
   assignDoctorsToDepartment
 );
 
-// Statistics and Dashboard
+
 router.get(
   "/hospital-statistics",
   authenticate,

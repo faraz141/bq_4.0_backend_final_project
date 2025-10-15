@@ -12,7 +12,7 @@ exports.authenticate = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     let user;
 
-    // Find user based on userType from token
+   
     if (decoded.userType === "staff") {
       user = await Staff.findById(decoded.id).select("-password");
     } else if (decoded.userType === "doctor") {
@@ -33,7 +33,7 @@ exports.authenticate = async (req, res, next) => {
 
 exports.authorizeRoles = (...roles) => {
   return (req, res, next) => {
-    // For doctors and staff, use userType instead of role
+    
     const userRole = req.user.role || req.userType;
     
     if (!roles.includes(userRole)) {

@@ -10,10 +10,10 @@ const appointmentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Patient",
     required: true,
-  }, // Patient ID
+  },
   departmentId: { type: mongoose.Schema.Types.ObjectId, ref: "Department" },
-  date: { type: String, required: true }, // YYYY-MM-DD
-  time: { type: String, required: true }, // Single time field as per requirement
+  date: { type: String, required: true },
+  time: { type: String, required: true },
   status: {
     type: String,
     enum: ["Booked", "Attended", "Missed"],
@@ -23,11 +23,10 @@ const appointmentSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Add indexes for performance optimization
-appointmentSchema.index({ doctorId: 1, date: 1 }); // Compound index for doctor's daily schedule
-appointmentSchema.index({ patientId: 1 }); // For patient's appointment history
-appointmentSchema.index({ date: 1 }); // For daily reports
-appointmentSchema.index({ status: 1 }); // For status-based queries
-appointmentSchema.index({ departmentId: 1 }); // For department-wise reports
+appointmentSchema.index({ doctorId: 1, date: 1 });
+appointmentSchema.index({ patientId: 1 });
+appointmentSchema.index({ date: 1 });
+appointmentSchema.index({ status: 1 });
+appointmentSchema.index({ departmentId: 1 });
 
 module.exports = mongoose.model("Appointment", appointmentSchema);

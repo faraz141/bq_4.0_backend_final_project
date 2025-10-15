@@ -12,7 +12,7 @@ const {
   authorizeRoles,
 } = require("../middleware/authMiddleware");
 
-// Get daily statistics with pagination and filtering
+
 router.get(
   "/daily-statistics",
   authenticate,
@@ -20,7 +20,7 @@ router.get(
   getDailyStatistics
 );
 
-// Get statistics for a specific date
+
 router.get(
   "/statistics/:date",
   authenticate,
@@ -28,7 +28,7 @@ router.get(
   getStatsByDate
 );
 
-// Manually generate statistics for a specific date
+
 router.post(
   "/generate-statistics",
   authenticate,
@@ -36,7 +36,7 @@ router.post(
   generateStatsForDate
 );
 
-// Manually update missed appointments for a specific date
+
 router.post(
   "/update-missed-appointments",
   authenticate,
@@ -44,7 +44,7 @@ router.post(
   updateMissedAppointmentsForDate
 );
 
-// Get cron job execution summary and status
+
 router.get(
   "/cron-summary",
   authenticate,

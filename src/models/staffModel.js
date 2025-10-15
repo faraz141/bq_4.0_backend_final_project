@@ -23,7 +23,7 @@ const staffSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Add indexes for performance (email index is automatic via unique: true)
+
 staffSchema.index({ departmentId: 1 });
 staffSchema.index({ role: 1 });
 

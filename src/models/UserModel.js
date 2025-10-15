@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Add indexes for performance (email index is automatic via unique: true)
+
 userSchema.index({ role: 1 });
 userSchema.index({ departmentIds: 1 });
 userSchema.index({ specialization: 1 });

@@ -2,7 +2,6 @@ const Appointment = require("../models/appointmentModel");
 const Doctor = require("../models/doctorModel");
 const User = require("../models/UserModel");
 
-// Get today's appointments with patient details for the logged-in doctor
 exports.getTodayAppointments = async (req, res) => {
   try {
     const today = new Date().toISOString().slice(0, 10);
@@ -30,7 +29,6 @@ exports.getTodayAppointments = async (req, res) => {
   }
 };
 
-// Get monthly statistics for the logged-in doctor
 exports.getMonthlyStatistics = async (req, res) => {
   try {
     const { year, month } = req.query;
@@ -39,7 +37,6 @@ exports.getMonthlyStatistics = async (req, res) => {
     let matchCondition = { doctorId };
 
     if (year && month) {
-      // Get appointments for specific month
       const startDate = `${year}-${month.padStart(2, "0")}-01`;
       const endDate = new Date(year, month, 0).toISOString().slice(0, 10);
       matchCondition.date = { $gte: startDate, $lte: endDate };
@@ -49,7 +46,7 @@ exports.getMonthlyStatistics = async (req, res) => {
       { $match: matchCondition },
       {
         $addFields: {
-          monthYear: { $substr: ["$date", 0, 7] }, // Extract YYYY-MM
+          monthYear: { $substr: ["$date", 0, 7] },
         },
       },
       {
@@ -75,7 +72,6 @@ exports.getMonthlyStatistics = async (req, res) => {
   }
 };
 
-// Get historical data of patients treated by the logged-in doctor
 exports.getPatientHistory = async (req, res) => {
   try {
     const doctorId = req.user._id;
@@ -136,7 +132,6 @@ exports.getPatientHistory = async (req, res) => {
       { $limit: parseInt(limit) },
     ]);
 
-    // Get total count for pagination
     const totalPatients = await Appointment.distinct("userId", {
       doctorId,
     }).then((ids) => ids.length);
@@ -156,7 +151,6 @@ exports.getPatientHistory = async (req, res) => {
   }
 };
 
-// Get all doctors with filtering
 exports.getDoctors = async (req, res) => {
   try {
     const { departmentId, specialization, status } = req.query;
@@ -176,7 +170,6 @@ exports.getDoctors = async (req, res) => {
   }
 };
 
-// Get doctor availability
 exports.getDoctorAvailability = async (req, res) => {
   try {
     const { doctorId } = req.params;
@@ -190,7 +183,6 @@ exports.getDoctorAvailability = async (req, res) => {
     }
 
     if (date) {
-      // Get availability for specific date
       const dayName = new Date(date).toLocaleDateString("en-US", {
         weekday: "long",
       });
@@ -209,7 +201,6 @@ exports.getDoctorAvailability = async (req, res) => {
         });
       }
 
-      // Get booked slots for the date
       const bookedSlots = await Appointment.find({
         doctorId,
         date,
@@ -235,7 +226,6 @@ exports.getDoctorAvailability = async (req, res) => {
         bookedSlots: bookedTimes,
       });
     } else {
-      // Get general availability
       res.json({
         doctor: {
           id: doctor._id,

@@ -10,5 +10,4 @@ mongoose
     console.log("Database connection failed", err);
   });
 
-
 module.exports = mongoose;

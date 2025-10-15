@@ -40,7 +40,7 @@ const doctorSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Add indexes for performance (email index is automatic via unique: true)
+
 doctorSchema.index({ departmentId: 1 });
 doctorSchema.index({ specialization: 1 });
 doctorSchema.index({ status: 1 });

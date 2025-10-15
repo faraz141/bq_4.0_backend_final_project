@@ -5,7 +5,6 @@ const Department = require("../models/deparmentModel");
 const Appointment = require("../models/appointmentModel");
 const Joi = require("joi");
 
-// Validation schemas
 const createStaffSchema = Joi.object({
   name: Joi.string().required(),
   email: Joi.string().email().required(),
@@ -43,7 +42,6 @@ const createDoctorSchema = Joi.object({
     .optional(),
 });
 
-// Staff Management
 exports.createStaff = async (req, res) => {
   try {
     const { error } = createStaffSchema.validate(req.body);
@@ -52,7 +50,6 @@ exports.createStaff = async (req, res) => {
 
     const { name, email, password, departmentId, role } = req.body;
 
-    // Check if email already exists
     const userExists = await User.findOne({ email });
     const staffExists = await Staff.findOne({ email });
     const doctorExists = await Doctor.findOne({ email });
@@ -71,12 +68,10 @@ exports.createStaff = async (req, res) => {
     });
 
     await staff.save();
-    res
-      .status(201)
-      .json({
-        message: "Staff created successfully",
-        staff: { ...staff.toObject(), password: undefined },
-      });
+    res.status(201).json({
+      message: "Staff created successfully",
+      staff: { ...staff.toObject(), password: undefined },
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -119,7 +114,6 @@ exports.getAllStaff = async (req, res) => {
   }
 };
 
-// Doctor Management
 exports.createDoctor = async (req, res) => {
   try {
     const { error } = createDoctorSchema.validate(req.body);
@@ -157,12 +151,10 @@ exports.createDoctor = async (req, res) => {
     });
 
     await doctor.save();
-    res
-      .status(201)
-      .json({
-        message: "Doctor created successfully",
-        doctor: { ...doctor.toObject(), password: undefined },
-      });
+    res.status(201).json({
+      message: "Doctor created successfully",
+      doctor: { ...doctor.toObject(), password: undefined },
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -212,7 +204,6 @@ exports.getAllDoctors = async (req, res) => {
   }
 };
 
-// Assign multiple doctors to departments
 exports.assignDoctorsToDepartment = async (req, res) => {
   try {
     const { doctorIds, departmentId, availableDays, timeSlots } = req.body;
@@ -239,10 +230,8 @@ exports.assignDoctorsToDepartment = async (req, res) => {
   }
 };
 
-// Hospital Statistics for Admin Dashboard
 exports.getHospitalStatistics = async (req, res) => {
   try {
-    // Appointments by department
     const appointmentsByDepartment = await Appointment.aggregate([
       {
         $lookup: {
@@ -271,7 +260,6 @@ exports.getHospitalStatistics = async (req, res) => {
       },
     ]);
 
-    // Overall statistics
     const totalStats = await Appointment.aggregate([
       {
         $group: {

@@ -6,7 +6,7 @@ const User = require("../models/UserModel");
 const Staff = require("../models/staffModel");
 const Department = require("../models/deparmentModel");
 
-// Model for storing daily statistics
+
 const mongoose = require("mongoose");
 
 const dailyStatsSchema = new mongoose.Schema({
@@ -48,28 +48,28 @@ class CronJobService {
   }
 
   initializeCronJobs() {
-    // 1. Appointment Status Update - Every night at 12:00 AM
+    
     this.createJob(
       "appointmentCleanup",
       "0 0 * * *",
       this.updateMissedAppointments.bind(this)
     );
 
-    // 2. Daily Statistics Generation - Every morning at 6:00 AM
+    
     this.createJob(
       "dailyStats",
       "0 6 * * *",
       this.generateDailyStatistics.bind(this)
     );
 
-    // 3. Data Cleanup Tasks - Every Sunday at 2:00 AM
+    
     this.createJob(
       "weeklyCleanup",
       "0 2 * * 0",
       this.performWeeklyCleanup.bind(this)
     );
 
-    // 4. Reminder Notifications - Every hour (conceptual - would integrate with notification service)
+    
     this.createJob("reminders", "0 * * * *", this.processReminders.bind(this));
 
     console.log("Cron jobs initialized successfully");
@@ -108,7 +108,7 @@ class CronJobService {
     }
   }
 
-  // 1. Automatically mark appointments as "Missed" if not attended by end of day
+  
   async updateMissedAppointments() {
     try {
       const yesterday = moment().subtract(1, "day").format("YYYY-MM-DD");
@@ -127,7 +127,7 @@ class CronJobService {
         `Updated ${result.modifiedCount} appointments to 'Missed' status for date: ${yesterday}`
       );
 
-      // Log the action
+     
       await this.logCronAction("appointment_status_update", {
         date: yesterday,
         appointmentsUpdated: result.modifiedCount,
@@ -138,7 +138,7 @@ class CronJobService {
     }
   }
 
-  // 2. Generate and store daily summaries
+
   async generateDailyStatistics() {
     try {
       const yesterday = moment().subtract(1, "day").format("YYYY-MM-DD");
@@ -150,7 +150,7 @@ class CronJobService {
         return;
       }
 
-      // Generate overall statistics
+      
       const overallStats = await Appointment.aggregate([
         { $match: { date: yesterday } },
         {
@@ -170,7 +170,7 @@ class CronJobService {
         },
       ]);
 
-      // Generate department-wise statistics
+      
       const departmentStats = await Appointment.aggregate([
         { $match: { date: yesterday } },
         {
@@ -196,7 +196,7 @@ class CronJobService {
         },
       ]);
 
-      // Generate doctor-wise statistics
+      
       const doctorStats = await Appointment.aggregate([
         { $match: { date: yesterday } },
         {
@@ -223,7 +223,7 @@ class CronJobService {
         },
       ]);
 
-      // Create daily statistics record
+      
       const dailyStats = new DailyStats({
         date: yesterday,
         totalAppointments: overallStats[0]?.totalAppointments || 0,
@@ -252,7 +252,7 @@ class CronJobService {
       await dailyStats.save();
       console.log(`Daily statistics generated for ${yesterday}`);
 
-      // Log the action
+    
       await this.logCronAction("daily_statistics_generation", {
         date: yesterday,
         totalAppointments: dailyStats.totalAppointments,
@@ -264,12 +264,12 @@ class CronJobService {
     }
   }
 
-  // 3. Weekly data cleanup tasks
+ 
   async performWeeklyCleanup() {
     try {
       const thirtyDaysAgo = moment().subtract(30, "days").format("YYYY-MM-DD");
 
-      // Remove very old daily statistics (older than 1 year)
+     
       const oneYearAgo = moment().subtract(1, "year").format("YYYY-MM-DD");
       const oldStatsResult = await DailyStats.deleteMany({
         date: { $lt: oneYearAgo },
@@ -279,18 +279,18 @@ class CronJobService {
         `Cleaned up ${oldStatsResult.deletedCount} old daily statistics records`
       );
 
-      // Log inactive users (conceptual - might move them to archived collection)
+      
       const inactiveUsersCount = await User.countDocuments({
         role: "patient",
         createdAt: { $lt: new Date(thirtyDaysAgo) },
-        // Add condition to check if user has no recent appointments
+       
       });
 
       console.log(
         `Found ${inactiveUsersCount} potentially inactive users (created more than 30 days ago)`
       );
 
-      // Log the cleanup action
+     
       await this.logCronAction("weekly_cleanup", {
         oldStatsDeleted: oldStatsResult.deletedCount,
         inactiveUsersFound: inactiveUsersCount,
@@ -301,14 +301,14 @@ class CronJobService {
     }
   }
 
-  // 4. Process reminder notifications (conceptual)
+ 
   async processReminders() {
     try {
       const tomorrow = moment().add(1, "day").format("YYYY-MM-DD");
       const currentHour = moment().hour();
       const reminderTime = `${String(currentHour + 1).padStart(2, "0")}:00`;
 
-      // Find appointments that need reminders (1 day before appointment)
+    
       const upcomingAppointments = await Appointment.find({
         date: tomorrow,
         time: { $regex: `^${reminderTime}` },
@@ -321,19 +321,14 @@ class CronJobService {
         `Found ${upcomingAppointments.length} appointments needing reminders for ${tomorrow} at ${reminderTime}`
       );
 
-      // In a real implementation, you would integrate with:
-      // - Email service (SendGrid, AWS SES, etc.)
-      // - SMS service (Twilio, etc.)
-      // - Push notification service
-
-      // For now, just log the reminders
+     
       upcomingAppointments.forEach((appointment) => {
         console.log(
           `Reminder needed for: ${appointment.userId.name} - Appointment with Dr. ${appointment.doctorId.name} on ${appointment.date} at ${appointment.time}`
         );
       });
 
-      // Log the reminder processing
+  
       await this.logCronAction("reminder_processing", {
         appointmentsProcessed: upcomingAppointments.length,
         reminderDate: tomorrow,
@@ -345,17 +340,17 @@ class CronJobService {
     }
   }
 
-  // Helper method to log cron job actions
+ 
   async logCronAction(actionType, data) {
     try {
-      // You could create a separate CronLog model to track all cron job executions
+     
       console.log(`[CRON LOG] ${actionType}:`, JSON.stringify(data, null, 2));
     } catch (error) {
       console.error("Error logging cron action:", error);
     }
   }
 
-  // Method to get job status
+  
   getJobStatus() {
     return this.jobs.map(({ name, schedule }) => ({
       name,
@@ -364,7 +359,7 @@ class CronJobService {
     }));
   }
 
-  // Method to stop all jobs
+  
   stopAllJobs() {
     this.jobs.forEach(({ name, job }) => {
       job.stop();
@@ -372,7 +367,7 @@ class CronJobService {
     });
   }
 
-  // Method to start all jobs
+  
   startAllJobs() {
     this.jobs.forEach(({ name, job }) => {
       job.start();
@@ -381,5 +376,5 @@ class CronJobService {
   }
 }
 
-// Export both the service class and the DailyStats model
+
 module.exports = { CronJobService, DailyStats };
